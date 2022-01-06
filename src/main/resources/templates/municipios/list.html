@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org" lang="pt-br"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/index}" th:with="currentPage='municipios'">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" th:href="@{/css/buefy.min.css}">
+<link rel="stylesheet" href="https://cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css">
+
+<title>Municípios</title>
+</head>
+<body>
+<section layout:fragment="content">
+
+		<div id="app">
+
+			<section style="padding: 10px 0;">
+
+				<div class="column is-full">
+
+
+					<div class="card">
+						<header class="card-header">
+							<h2 class="card-header-title">{{ title }}</h2>
+							
+						</header>
+						<div class="card-content">
+							<div class="">
+								<b-field label="Mostrar" :label-position="labelPosition" grouped group-multiline> <b-select
+									v-model="perPage" :disabled="!isPaginated"
+									@change.native="onPerPageChange">
+								<option value="5">5 por página</option>
+								<option value="10">10 por página</option>
+								<option value="15">15 por página</option>
+								<option value="20">20 por página</option>
+								</b-select>
+								<div class="control">
+									<b-button @click.native="gotToNew" type="is-success"><i class="fa fa-plus-circle"></i><b> Novo</b></b-button>
+								</div>
+								</b-field>
+								
+								<b-field label="Buscar Município(s) " :label-position="labelPosition">
+						            <b-input v-model="textoBusca" expanded @keyup.enter.native="loadAsyncData" placeholder="Nome ou parte do nome, ID, Código IBGE ou sigla estado"></b-input>
+						            <div class="control">
+										<b-button  @click.native="loadAsyncData" type="is-info"><i class="fa fa-search"></i><b> Buscar</b></b-button>
+									</div>
+						            <div class="control">
+										<b-button  @click.native="limparBusca" type="is-danger"><i class="fa fa-broom"></i><b> Resetar Busca</b></b-button>
+									</div>
+						        </b-field>
+
+								<b-table 
+									:data="data" 
+									ref="table" 
+									paginated 
+									:mobile-cards="mobileCards"
+									:per-page="perPage"
+									:total="total" 
+									@page-change="onPageChange" 
+									:current-page.sync="currentPage"
+									backend-pagination
+									:pagination-position="paginationPosition"
+									
+									backend-sorting
+						            :default-sort-direction="defaultSortOrder"
+						            :default-sort="[sortField, sortOrder]"
+									@sort="onSort"
+									
+									:striped="isStriped"
+									aria-next-label="Next page" 
+									aria-previous-label="Previous page"
+									aria-page-label="Page" 
+									aria-current-label="Current page">
+									
+								<template slot-scope="props"> 
+									 
+									<b-table-column field="id" label="ID" width="40" numeric sortable> 
+										{{ props.row.id }} 
+										 
+									</b-table-column> 
+									<b-table-column field="nome" label="Município" sortable> 
+										{{ props.row.nome }}
+									</b-table-column>
+									
+									<b-table-column centered field="codigoIbge" label="Código IBGE" sortable> 
+										{{ props.row.codigoIbge }}
+									</b-table-column>
+									
+									<b-table-column field="estado.nome" label="Estado" > 
+										{{ props.row.estado.nome }}
+									</b-table-column>
+									
+									<b-table-column field="regiao.nome" label="Região" > 
+										{{ props.row.estado.regiao.nome }}
+									</b-table-column>
+									
+									<b-table-column centered field="amazoniaLegal" label="Amazônia Legal"> 
+										<div v-if="props.row.amazoniaLegal">
+											<b-tag type="is-success">SIM</b-tag>
+										</div>
+										<div v-else>
+											<b-tag type="is-danger">NÂO</b-tag>
+										</div>
+										
+										
+										
+									</b-table-column>
+									
+									<b-table-column field="" label="" width="100"> 
+										<b-button @click.native="gotToUrl('/sigequi/municipios/editar/'+props.row.id)" size="is-small" type="is-warning"><i style="color:#fff" class="fa fa-edit"></i></b-button>
+										<b-button @click.native="confirmCustomDelete(props.row.id)" size="is-small" type="is-danger"><i class="fa fa-eraser"></i></b-button>
+									</b-table-column> 
+								</template> 
+								</b-table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+		</div>
+
+
+	<script th:src="@{/js/vue.js}"></script>
+	<script th:src="@{/js/vee-validate.js}"></script>
+	<script th:src="@{/js/axios.min.js}"></script>
+  	<script th:src="@{/js/buefy.min.js}"></script>
+	<script th:src="@{/js/dataservices/CrudService.js}"></script>
+	
+	<script th:inline="javascript">
+		const URL_BASE =  /*[[${session.BASE_URL_API}]]*/ "";
+	</script>
+	
+	<script>
+	var URL = URL_BASE+"/municipios/";
+	var URL_CRITERIA = URL_BASE+"/municipios/criteria";
+	Vue.use(VeeValidate);
+	const app = new Vue( {
+			el: '#app',
+		    data() {
+		        return {
+		            data:[],
+		            labelPosition: 'on-border',
+		            defaultOpenedDetails: [0],
+		            paginationPosition: 'bottom',
+		            showDetailIcon: false,
+		            isPaginated: true,
+		            isStriped: true,
+		            mobileCards: true,
+		            perPage: 5,
+		            currentPage: 1,
+		            total:0,
+		            page: 1,
+		            title:"Municípios",
+		            sortField: 'nome',
+	                sortOrder: 'asc',
+	                defaultSortOrder: 'asc',
+	                textoBusca: null,
+	                filter:{
+            				field: null,
+            				operator: null,
+            				value: null
+            			},
+            		sorting:{
+                			field: null,
+                			direction: null
+                		},
+	                filterBody: {
+                		page: null,
+                		size: null,
+                		filters:[],
+                		sorting:null
+	                }
+		        }
+		    },
+		    methods: {
+		        toggle(row) {
+		            this.$refs.table.toggleDetails(row)
+		        },
+		        loadAsyncData() {
+		        	
+		        	if(this.textoBusca != null){
+		        		
+		        		this.filterBody.filters=[
+							{
+								"field" : "nome",
+					        	"operator" : "CONTENDO_STR",
+					        	"value" : this.textoBusca
+							}
+							,
+							{
+								"field" : "id",
+					        	"operator" : "IGUAL",
+					        	"value" : this.textoBusca
+							}
+							,
+							{
+								"field" : "id",
+					        	"operator" : "CONTENDO",
+					        	"value" : this.textoBusca
+							}
+							,
+							{
+								"field" : "codigoIbge",
+					        	"operator" : "CONTENDO",
+					        	"value" : this.textoBusca
+							}
+							,
+							{
+								"field" : "estado",
+					        	"operator" : "IGUAL",
+					        	"value" : this.textoBusca
+							}
+		        		]
+		        		
+		        	}
+		        	this.filterBody.page = this.page-1
+		        	this.filterBody.size = this.perPage
+		        	
+		        	this.sorting.field = this.sortField
+		        	this.sorting.direction = this.sortOrder.toUpperCase()
+		        	this.filterBody.sorting = this.sorting
+		        	
+		        	
+	                
+	                crudService.anyPostOperationWihtObject(URL_CRITERIA, this.filterBody, r => {
+	                	this.data = []
+	 					this.data = r.data.content
+	 					this.perPage = r.data.size
+	 					this.total = r.data.totalElements
+					})
+	                
+		        },
+		        onPageChange(page) {
+		        	this.data = []
+	                this.page = page
+	                this.loadAsyncData()
+	            },
+	            onPerPageChange(){
+	            	this.data = []
+	            	this.page=1
+	            	this.currentPage=1
+	            	this.loadAsyncData()
+	            },
+	            onSort(field, order) {
+	                this.sortField = field
+	                this.sortOrder = order
+	                this.loadAsyncData()
+	            },
+	            gotToNew() {
+	                window.location.href = "municipios/novo";
+	            },
+	            gotToUrl(url) {
+	                window.location.href = url;
+	            },
+	            limparBusca() {
+	            	this.textoBusca = null
+	            	this.filterBody.filters = []
+	            	this.loadAsyncData()
+	            },
+	            onDelete(id){
+	            	var excluir = confirm("Deseja Excluir registro? Esta operação não poderá ser desfeita!")
+	            	
+	            	if(excluir){	            		
+	            		crudService.delete(URL, id, r => {
+		 					if(r.data.success){
+		 						this.data = []
+		 						this.loadAsyncData()
+		 					}
+						})
+	            	}
+	            	
+	            },
+	            confirmCustomDelete(id) {
+	                this.$buefy.dialog.confirm({
+	                    title: 'Excluir Registro',
+	                    message: 'Deseja Excluir registro? Esta operação não poderá ser desfeita!',
+	                    confirmText: 'Excluir',
+	                    cancelText: "Cancelar",
+	                    type: 'is-danger',
+	                    hasIcon: true,
+	                    onConfirm: () => {
+	                    	crudService.delete(URL, id, r => {
+			 					if(r.data.success){
+			 						this.data = []
+			 						this.loadAsyncData()
+			 					}
+							})
+	                    	this.$buefy.toast.open({
+			                    duration: 5000,
+			                    message: "Registro Excluído com sucesso!",
+			                    position: 'is-top',
+			                    type: 'is-success'
+			                })
+                    	}
+	                })
+	            }
+		    },
+		    mounted() {
+		    	this.loadAsyncData()
+           	},
+		})
+
+		            
+  </script>
+</section>
+</body>
+</html>

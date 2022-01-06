@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org" lang="pt-br"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/index}" th:with="currentPage='usuarios'">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" th:href="@{/css/buefy.min.css}">
+<link rel="stylesheet" href="https://cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css">
+
+<title>Usuários</title>
+</head>
+<body>
+<section layout:fragment="content">
+
+		<div id="app">
+
+			<section style="padding: 10px 0;">
+
+				<div class="column is-full">
+
+
+					<div class="card">
+						<header class="card-header">
+							<h2 class="card-header-title">{{ title }}</h2>
+							
+						</header>
+						<div class="card-content">
+							<div class="">
+								<b-field grouped group-multiline> <b-select
+									v-model="perPage" :disabled="!isPaginated"
+									@change.native="onPerPageChange">
+								<option value="5">5 por página</option>
+								<option value="10">10 por página</option>
+								<option value="15">15 por página</option>
+								<option value="20">20 por página</option>
+								</b-select>
+								<div class="control">
+									<b-button @click.native="gotToNew" type="is-success"><i class="fa fa-plus-circle"></i><b> Novo</b></b-button>
+								</div>
+								</b-field>
+
+								<b-table
+									v-show="!isLoading" 
+									:data="data" 
+									ref="table" 
+									paginated 
+									:mobile-cards="mobileCards"
+									:per-page="perPage"
+									:total="total" 
+									@page-change="onPageChange" 
+									:current-page.sync="currentPage"
+									backend-pagination
+									:pagination-position="paginationPosition"
+									:striped="isStriped"
+									aria-next-label="Next page" 
+									aria-previous-label="Previous page"
+									aria-page-label="Page" 
+									aria-current-label="Current page">
+									
+									<template slot-scope="props"> 
+										 
+										<b-table-column field="codigo" label="ID" width="40" numeric> 
+											{{ props.row.codigo }}
+										</b-table-column>
+
+										<b-table-column field="" label="Foto" width="80" >
+											<img width="80" v-bind:src="urlFoto +  props.row.codigo" alt="..." class="img-fluid rounded">
+										</b-table-column>
+
+										<b-table-column field="nome" label="Nome do Usuário" sortable> 
+											{{ props.row.nome }}
+										</b-table-column>
+										<b-table-column centered field="email" label="E-mail" sortable> 
+											{{ props.row.email }}
+										</b-table-column>
+										<b-table-column field="userName" label="Login" sortable> 
+											{{ props.row.userName }}
+										</b-table-column>
+																			
+										<b-table-column centered field="enabled" label="Ativo"> 
+											<i title="Usuário ativo" style="color: green;" class="fa fa-check"   v-show="props.row.enabled==true"></i>
+											<i title="Usuário inativo" style="color: red;" class="fa fa-times"   v-show="props.row.enabled==false"></i>
+											
+										</b-table-column>
+										
+										<b-table-column centered field="enabled" label="Permissões"> 
+											<b-button @click="permissaoActive(props.row)" size="is-small" type="is-success"><i style="color:#fff" class="fa fa-user-shield"></i></b-button>
+											
+										</b-table-column>
+										
+										<b-table-column field="" label="" width="150"> 											
+											<b-button title="Ativar/Desativar Usuário" @click.native="ativarDesativarUsuario(props.row.codigo)" size="is-small" type="is-info"><i style="color:#fff" class="fa fa-exchange-alt"></i></b-button>
+											<b-button title="Editar Usuário" @click.native="gotToUrl('/sigequi/usuarios/editar/'+props.row.codigo)" size="is-small" type="is-warning"><i style="color:#fff" class="fa fa-edit"></i></b-button>											
+										</b-table-column> 
+										
+										
+									</template> 
+								</b-table>
+								
+								<b-loading :is-full-page="isFullPage" :active.sync="isLoading" :can-cancel="true"></b-loading>
+								<div id="MODAIS">
+									<b-modal can-cancel :active.sync="isPermissaoActive" animation
+										:width="700" has-modal-card> 
+										<modal-permissoes 
+											:id="userIdSelected"
+											:nome="userNameSelected">
+										</modal-permissoes>
+									</b-modal>
+								</div>
+								
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+		</div>
+
+
+	<script th:src="@{/js/vue.js}"></script>
+	<script th:src="@{/js/vee-validate.js}"></script>
+	<script th:src="@{/js/axios.min.js}"></script>
+	<script th:src="@{/js/dataservices/CrudService.js}"></script>
+  	<script th:src="@{/js/buefy.min.js}"></script>
+  	<script th:src="@{/js/lodash.min.js}"></script>
+	
+	
+	
+	<script th:inline="javascript">
+		const URL_BASE =  /*[[${session.BASE_URL_API}]]*/ "";
+	</script>
+	
+	<!-- 	Import dos modais -->
+	<script th:src="@{/js/modals/usuarios/ModalPermissoes.js}"></script>
+	
+	<script>
+	const URL = URL_BASE+"/security/usuarios";
+	const URL_ENABLE_DISABLE_USER = URL_BASE+"/security/usuarios/enable-disable";
+	Vue.use(VeeValidate);
+// 	Vue.use(axios);
+	
+	Vue.component("modal-permissoes",ModalPermissoes)
+	
+	const app = new Vue( {
+			el: '#app',
+		    data() {
+		        return {
+		            data:[],
+					urlFoto: URL_BASE+"/user-foto/",
+		            defaultOpenedDetails: [0],
+		            paginationPosition: 'bottom',
+		            showDetailIcon: false,
+		            isPaginated: true,
+		            isStriped: true,
+		            mobileCards: true,
+		            perPage: 5,
+		            currentPage: 1,
+		            total:0,
+		            page: 1,
+		            title:"Usuários",
+		            isPermissaoActive: false,
+		            userIdSelected: null,
+		            userNameSelected: null,
+		            isLoading: false,
+		            isFullPage: false
+		        }
+		    },
+		    methods: {
+		        toggle(row) {
+		            this.$refs.table.toggleDetails(row)
+		        },
+		        loadAsyncData() {
+		        	
+                	this.data = []
+	                crudService.findAll(URL, this.page-1 , this.perPage, null, r => {
+	 					this.data = r.data.content
+	 					this.perPage = r.data.size
+	 					this.total = r.data.totalElements
+					})
+	                
+		        },
+		        openLoading() {
+	                this.isLoading = true
+	                setTimeout(() => {
+	                    this.isLoading = false
+	                }, 2000)
+	            },
+		        permissaoActive(object){
+		        	this.isPermissaoActive = true
+		        	this.userIdSelected = object.codigo
+		        	this.userNameSelected = object.nome
+		        },
+		        onPageChange(page) {
+		        	this.data = []
+	                this.page = page
+	                this.loadAsyncData()
+	            },
+	            onPerPageChange(){
+	            	this.data = []
+	            	this.page=1
+	            	this.currentPage=1
+	            	this.loadAsyncData()
+	            },
+	            gotToNew() {
+	                window.location.href = "usuarios/novo";
+	            },
+	            gotToUrl(url) {
+	                window.location.href = url;
+	            },
+	            onDelete(id){
+	            	var excluir = confirm("Deseja Excluir registro? Esta operação não poderá ser desfeita!")
+	            	
+	            	if(excluir){	            		
+	            		crudService.delete(URL, id, r => {
+		 					if(r.data.success){
+		 						this.data = []
+		 						this.loadAsyncData()
+		 					}
+						})
+	            	}
+	            	
+	            },
+	            confirmCustomDelete(id) {
+	                this.$buefy.dialog.confirm({
+	                    title: 'Excluir Registro',
+	                    message: 'Deseja Excluir registro? Esta operação não poderá ser desfeita!',
+	                    confirmText: 'Excluir',
+	                    cancelText: "Cancelar",
+	                    type: 'is-danger',
+	                    hasIcon: true,
+	                    onConfirm: () => {
+	                    	crudService.delete(URL, id, r => {
+			 					if(r.data.success){
+			 						this.data = []
+			 						this.loadAsyncData()
+			 					}
+							})
+	                    	this.$buefy.toast.open({
+			                    duration: 5000,
+			                    message: "Registro Excluído com sucesso!",
+			                    position: 'is-top',
+			                    type: 'is-success'
+			                })
+                    	}
+	                })
+	            },
+	            ativarDesativarUsuario(usuarioId){
+	            	axios
+		            .post(URL_ENABLE_DISABLE_USER, {usuarioId:usuarioId}, {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}})
+		            .then(response => {
+		            	console.log(response)
+		        		if(response.status == 200){	 
+		        			this.openLoading()
+		        			this.loadAsyncData()
+		        			
+		        			setTimeout(() => {
+		        				this.$buefy.toast.open({
+				                    duration: 2000,
+				                    message: response.data.situacao ? "Usuário ativado com sucesso!" : "Usuário desativado com sucesso!",
+				                    position: 'is-top',
+				                    type: 'is-success'
+				                })
+			                }, 2000)
+		        			
+		        		}else if(response.status == 400){
+							this.$buefy.toast.open({
+			                    duration: 20000,
+			                    message: response.data.message,
+			                    position: 'is-top',
+			                    type: 'is-danger'
+			                })
+	 					}
+		            })
+		            .catch(error => {
+		            	console.log(error.response)
+		            })
+	            }
+		    },
+		    mounted() {
+		    	this.loadAsyncData()
+           	},
+		})
+
+		            
+  </script>
+</section>
+</body>
+</html>

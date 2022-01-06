@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org" lang="pt-br"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/index}" th:with="currentPage='territorios'">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" th:href="@{/css/buefy.min.css}">
+<link rel="stylesheet" th:href="@{/css/vue-multiselect.min.css}">
+<link rel="stylesheet"
+	href="https://cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css">
+
+<title>Territórios</title>
+</head>
+<body>
+	<section layout:fragment="content">
+
+		<div id="app">
+
+			<section style="padding: 10px 0;">
+
+				<div class="column is-full">
+
+
+					<div class="card">
+						<header class="card-header">
+							<h2 class="card-header-title">{{ title }}</h2>
+
+						</header>
+						<div class="card-content">
+							<div class="">
+								<b-field label="Mostrar" :label-position="labelPosition" grouped group-multiline> <b-select
+									v-model="perPage" :disabled="!isPaginated"
+									@change.native="onPerPageChange">
+								<option value="5">5 por página</option>
+								<option value="10">10 por página</option>
+								<option value="15">15 por página</option>
+								<option value="20">20 por página</option>
+								</b-select>
+								<div class="control">
+									<b-button @click.native="gotToNew" type="is-success">
+									<i class="fa fa-plus-circle"></i>
+									<b> Novo</b></b-button>
+								</div>
+								
+								<div class="control">
+									<b-button @click.native="gotToExport" type="is-success">
+									<i class="fa fa-file-excel"></i>
+									<b> Exportar</b></b-button>
+								</div>
+								</b-field>
+								
+								<b-field label="Buscar Território(s)" :label-position="labelPosition">
+						            <b-input v-model="textoBusca" expanded @keyup.enter.native="loadAsyncData" placeholder="Nome, parte do nome ou ID"></b-input>
+						            <div class="control">
+										<b-button  @click.native="loadAsyncData" type="is-info"><i class="fa fa-search"></i><b> Buscar</b></b-button>
+									</div>
+						            <div class="control">
+										<b-button  @click.native="limparBusca" type="is-danger"><i class="fa fa-broom"></i><b> Resetar Busca</b></b-button>
+									</div>
+						        </b-field>
+
+								<b-table :data="data" ref="table" paginated
+									:mobile-cards="mobileCards" 
+									:per-page="perPage" 
+									:total="total"
+									@page-change="onPageChange" 
+									backend-pagination
+									:current-page.sync="currentPage"
+									:pagination-position="paginationPosition"
+									:opened-detailed="defaultOpenedDetails" 
+									:striped="isStriped"
+									detailed 
+									detail-key="id" 
+									:show-detail-icon="true"
+									@details-open="(row, index) => toggle(row, index)"
+									aria-next-label="Next page" 
+									aria-previous-label="Previous page"
+									aria-page-label="Page" 
+									aria-current-label="Current page"
+									:narrowed="isNarrowed"
+									
+									backend-sorting
+						            :default-sort-direction="defaultSortOrder"
+						            :default-sort="[sortField, sortOrder]"
+									@sort="onSort"
+									> 
+									<template slot-scope="props">
+
+								<b-table-column field="id" label="ID" width="40" numeric sortable>
+								{{ props.row.id }} </b-table-column> 
+								
+								<b-table-column field="nome" label="Território" sortable> 
+									 {{ props.row.nome}}
+								</b-table-column> 
+								
+								<b-table-column field="numeroComunidades" label="Número de Comunidades" > 
+									 {{ props.row.numeroComunidades}}
+								</b-table-column> 
+								
+								<b-table-column field="" label="" width="150">
+								<a
+									@click="gotToUrl('/sigequi/territorios/editar/'+props.row.id)"
+									type="is-text"><i style="color: #2d98da;"
+									class="fa fa-edit"></i></a> <a
+									@click="confirmCustomDelete(props.row.id)" type="is-text"><i
+									style="color: #fc5c65;" class="fa fa-eraser"></i></a> </b-table-column> </template> 
+									
+									<template
+									slot="detail" slot-scope="props">
+
+								
+								<table>	
+									<tr><td>
+										<button class="button is-info is-small"
+										@click="ativaModalMunicipio"><i class="fas fa-eye"></i>&nbsp;&nbsp;Municípios</button>
+									</td></tr>	
+									<tr>
+											<td>
+												<button class="button is-info is-small"
+												@click="isProcessoAdministrativoActive = true"><i class="fas fa-eye"></i>&nbsp;&nbsp;Processo Administrativo</button>
+											</td>
+											</tr>
+											
+											<tr><td>
+												<button class="button is-info is-small"
+												@click="isEditalComunicacaoActive = true"><i class="fas fa-eye"></i>&nbsp;&nbsp;Edital</button>
+											</td></tr>
+											
+<!-- 											<tr><td> -->
+<!-- 												<button class="button is-info is-small" -->
+<!-- 												@click="isEditalComunicacao2Active = true"><i class="fas fa-eye"></i>&nbsp;&nbsp;Edital 2</button> -->
+<!-- 											</td></tr> -->
+											
+											<tr><td>	
+												<button class="button is-info is-small"
+												@click="isPortariaReconhecimentoActive = true"><i class="fas fa-eye"></i>&nbsp;&nbsp;Portaria de Reconhecimento</button>
+											</td></tr>
+											
+											
+											<tr><td>	
+												<button class="button is-info is-small"
+												@click="isDecretoActive = true"><i class="fas fa-eye"></i>&nbsp;&nbsp;Decreto</button>
+											</td></tr>
+											
+											<tr><td>	
+												<button class="button is-info is-small"
+												@click="isCcdruActive = true"><i class="fas fa-eye"></i>&nbsp;&nbsp;CCDRU</button>
+											</td></tr>
+											
+											<tr>
+											<td>
+												<button class="button is-info is-small"
+												@click="isTituloPropriedadeActive = true"><i class="fas fa-eye"></i>&nbsp;&nbsp;Título Propriedade</button>
+											</td>
+											</tr>
+											
+											<tr><td>	
+												<button class="button is-info is-small"
+												@click="isMatriculaActive = true"><i class="fas fa-eye"></i>&nbsp;&nbsp;Matrícula</button>
+											</td></tr>
+											
+											<tr>
+											<td>
+												<button class="button is-info is-small"
+												@click="isAssentamentoEstadualActive = true"><i class="fas fa-eye"></i>&nbsp;&nbsp;Assentamento</button>
+											</td>
+											</tr>
+																						
+											<tr><td>
+												<button class="button is-info is-small"
+												@click="isDadosActive = true"><i class="fas fa-eye"></i>&nbsp;&nbsp;Dados Adicionais</button>
+											</td></tr>
+								</table>
+								
+								<b-modal can-cancel :active.sync="isMunicipioActive" animation
+									:width="700" has-modal-card> 
+									<modal-municipio
+										@ativa-novo-municipio="ativaModelNovoMunicipio(true)"
+										@ativa-editar-municipio="ativaModalEditarMunicipio"
+										@desativa-modal-municipio="desativaModalMunicipio"
+										@ativa-modal-municipio="ativaModalMunicipio"
+										@ativa-modal-vincular-municipio="ativaModalVincularMunicipio"
+										@reload-data="loadAsyncData"
+										:data-municipios="props.row">
+									</modal-municipio>
+								</b-modal>
+								
+								<b-modal
+									can-cancel :active.sync="isQuilomboActive" animation
+									:width="700" has-modal-card> 
+									<modal-quilombo
+										:data-quilombo="props.row.quilomboList">
+									</modal-quilombo>
+								</b-modal> 
+																	
+								<b-modal
+									can-cancel :active.sync="isNovoMunicipioActive" animation
+									:width="700" has-modal-card> 									
+									<modal-add-municipio
+										@desativa-novo-municipio="ativaModelNovoMunicipio(false)"
+										@reload-data="loadAsyncData"
+										:data="props.row">
+									</modal-add-municipio>
+								</b-modal> 
+								
+								<b-modal
+									can-cancel :active.sync="isEditarMunicipioActive" animation
+									:width="700" has-modal-card> 									
+									<modal-edite-municipio
+										@desativa-edite-municipio="ativaModalEditarMunicipio"
+										@reload-data="loadAsyncData"
+										:data="props.row"
+										:to-edite="objectToEditMunicipio">
+									</modal-edite-municipio>
+								</b-modal>
+								
+								<b-modal
+									can-cancel :active.sync="isVincularMunicipioActive" animation
+									:width="700" has-modal-card> 									
+									<modal-vincular-municipio
+										@desativa-modal-municipio="desativaModalMunicipio"
+										@ativa-modal-municipio="ativaModalMunicipio"
+										@desativa-modal-vincular-municipio="desativaModalVincularMunicipio"
+										@ativa-modal-vincular-municipio="ativaModalVincularMunicipio"
+										:territorio="props.row"
+										:list-municipios="municipios">
+									</modal-vincular-municipio>
+								</b-modal>
+								
+								<b-modal
+									can-cancel :active.sync="isDadosActive" animation
+									:width="700" has-modal-card> 
+									<modal-dados-adicionais
+										:comunidade="props.row">
+									</modal-dados-adicionais>
+								</b-modal> 
+								
+								<b-modal
+									can-cancel :active.sync="isMatriculaActive" animation
+									:width="700" has-modal-card> 
+									<modal-matricula-list
+										:matricula="props.row.matricula"
+										:id="props.row.id">
+									</modal-matricula-list>
+								</b-modal>
+								
+								<b-modal
+									can-cancel :active.sync="isDecretoActive" animation
+									:width="700" has-modal-card> 
+									<modal-decreto-list
+										:dadosdecreto="props.row.decretosDesapropriatorios"
+										:id="props.row.id">
+									</modal-decreto-list>
+								</b-modal>
+								
+								<b-modal
+									can-cancel :active.sync="isPortariaReconhecimentoActive" animation
+									:width="700" has-modal-card> 
+									<modal-portaria-reconhecimento-list
+										:data="props.row.portariasReconhecimento"
+										:id="props.row.id">
+									</modal-portaria-reconhecimento-list>
+								</b-modal>
+								
+								<b-modal
+									can-cancel :active.sync="isEditalComunicacaoActive" animation
+									:width="700" has-modal-card> 
+									<modal-edital-comunicacao-list
+										:data="props.row.editaisComunicacao"
+										:id="props.row.id">
+									</modal-edital-comunicacao-list>
+								</b-modal>
+								
+								<b-modal
+									can-cancel :active.sync="isEditalComunicacao2Active" animation
+									:width="700" has-modal-card> 
+									<modal-edital-comunicacao-2-list
+										:data="props.row.editaisComunicacao2"
+										:id="props.row.id">
+									</modal-edital-comunicacao-2-list>
+								</b-modal>
+								
+								<b-modal
+									can-cancel :active.sync="isTituloPropriedadeActive" animation
+									:width="700" has-modal-card> 
+									<modal-titulo-propriedade-list
+										:titulopropriedade="props.row.tituloPropriedade"
+										:id="props.row.id">
+									</modal-titulo-propriedade-list>
+								</b-modal>
+									
+								<b-modal
+									can-cancel :active.sync="isProcessoAdministrativoActive" animation
+									:width="700" has-modal-card> 
+									<modal-processo-administrativo-list
+										:dados="props.row.processosAdministrativos"
+										:id="props.row.id">
+									</modal-processo-administrativo-list>
+								</b-modal>
+								
+								<b-modal
+									can-cancel :active.sync="isAssentamentoEstadualActive" animation
+									:width="700" has-modal-card> 									
+									<modal-assentamento-list
+										:assentamentos="props.row.assentamentos"
+										:id="props.row.id">
+									</modal-assentamento-list>
+								</b-modal>
+								<b-modal
+									can-cancel :active.sync="isCcdruActive" animation
+									:width="700" has-modal-card> 									
+									<modal-ccdru-list
+										:ccdrus="props.row.ccdrus"
+										:id="props.row.id">
+									</modal-ccdru-list>
+								</b-modal>
+									</template>
+								</b-table>
+								
+									</template>
+								</b-table>
+								
+								</template> 
+								</b-table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+
+
+		</div>
+
+
+		<script th:src="@{/js/vue.js}"></script>
+		<script th:src="@{/js/vee-validate.js}"></script>
+		<script th:src="@{/js/vue-multiselect.min.js}"></script>
+		<script th:src="@{/js/axios.min.js}"></script>
+		<script th:src="@{/js/buefy.min.js}"></script>
+		<script th:src="@{/js/lodash.min.js}"></script>
+		<script th:src="@{/js/dataservices/CrudService.js}"></script>
+		
+		<script th:inline="javascript">
+			const URL_BASE =  /*[[${session.BASE_URL_API}]]*/ "";
+			const str = "http://localhost:8080/sigequi/api/v1";
+			let URL_BASEV2 = str.split("1");
+			console.log(URL_BASE)
+		</script>
+
+		<!-- 	Import dos modais -->
+		<script th:src="@{/js/modals/territorio/ModalMunicipio.js}"></script>
+		<script th:src="@{/js/modals/territorio/ModalAddMunicipio.js}"></script>
+		<script th:src="@{/js/modals/territorio/ModalEditeMunicipio.js}"></script>
+		<script th:src="@{/js/modals/territorio/ModalVincularMunicipio.js}"></script>
+
+		<script th:src="@{/js/modals/comunidade/ModalMatricula.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalDecreto.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalPortaria.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalPortariaReconhecimento.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalEditalComunicacao.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalEditalComunicacao2.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalTituloPropriedade.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalProcessoAdministrativo.js}"></script>
+		
+		<script th:src="@{/js/modals/comunidade/ModalEditalComunicacaoList.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalEditalComunicacaoAdd.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalEditalComunicacaoEdit.js}"></script>
+		
+		<script th:src="@{/js/modals/comunidade/ModalEditalComunicacao2List.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalEditalComunicacao2Add.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalEditalComunicacao2Edit.js}"></script>
+		
+		
+		<script th:src="@{/js/modals/comunidade/ModalProcessoAdministrativoList.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalProcessoAdministrativoAdd.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalProcessoAdministrativoEdit.js}"></script>
+		
+		<script th:src="@{/js/modals/comunidade/ModalPortariaReconhecimentoList.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalPortariaReconhecimentoAdd.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalPortariaReconhecimentoEdit.js}"></script>
+		
+		<script th:src="@{/js/modals/comunidade/ModalDecretoList.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalDecretoAdd.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalDecretoEdit.js}"></script>
+		
+		<script th:src="@{/js/modals/comunidade/ModalTituloPropriedadeList.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalTituloPropriedadeAdd.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalTituloPropriedadeEdit.js}"></script>
+		
+		<script th:src="@{/js/modals/comunidade/ModalMatriculaList.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalMatriculaAdd.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalMatriculaEdit.js}"></script>
+		
+		<script th:src="@{/js/modals/comunidade/ModalAssentamentoList.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalAssentamentoAdd.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalAssentamentoEdit.js}"></script>
+		
+		<script th:src="@{/js/modals/comunidade/ModalCcdruList.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalCcdruAdd.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalCcdruEdit.js}"></script>
+		
+		<script th:src="@{/js/modals/comunidade/ModalDadosAdicionais.js}"></script>
+		
+
+		<script>
+	const URL = URL_BASE+"/territorios/";
+	const URL_CRITERIA = URL_BASE+"/territorios/criteria";
+	
+    Vue.component("modal-municipio",ModalMunicipio)
+    Vue.component("modal-add-municipio",ModalAddMunicipio,)
+    Vue.component("modal-edite-municipio",ModalEditeMunicipio)
+    Vue.component("modal-vincular-municipio",ModalVincularMunicipio)
+    
+    Vue.component("modal-matricula",ModalMatricula,)  
+    Vue.component("modal-decreto",ModalDecreto)
+    Vue.component("modal-portaria",ModalPortaria)
+    Vue.component("modal-portaria-reconhecimento",ModalPortariaReconhecimento)
+    Vue.component("modal-edital-comunicacao",ModalEditalComunicacao)
+    Vue.component("modal-edital-comunicacao-2",ModalEditalComunicacao2)
+    Vue.component("modal-titulo-propriedade",ModalTituloPropriedade)
+    Vue.component("modal-processo-administrativo",ModalProcessoAdministrativo)
+    
+    Vue.component("modal-dados-adicionais",ModalDadosAdicionais)
+   
+    Vue.component("modal-edital-comunicacao-list",ModalEditalComunicacaoList)
+    Vue.component("modal-edital-comunicacao-2-list",ModalEditalComunicacao2List)
+    
+    Vue.component("modal-titulo-propriedade-list",ModalTituloPropriedadeList)
+    Vue.component("modal-titulo-propriedade-add",ModalTituloPropriedadeAdd)
+    Vue.component("modal-titulo-propriedade-edit",ModalTituloPropriedadeEdit)
+    
+    Vue.component("modal-edital-comunicacao-list",ModalEditalComunicacaoList)
+    Vue.component("modal-edital-comunicacao-add",ModalEditalComunicacaoAdd)
+    Vue.component("modal-edital-comunicacao-edit",ModalEditalComunicacaoEdit)
+    
+    Vue.component("modal-edital-comunicacao-2-list",ModalEditalComunicacao2List)
+    Vue.component("modal-edital-comunicacao-2-add",ModalEditalComunicacao2Add)
+    Vue.component("modal-edital-comunicacao-2-edit",ModalEditalComunicacao2Edit)
+    
+    Vue.component("modal-processo-administrativo-list",ModalProcessoAdministrativoList)
+    Vue.component("modal-processo-administrativo-add",ModalProcessoAdministrativoAdd)
+    Vue.component("modal-processo-administrativo-edit",ModalProcessoAdministrativoEdit)
+    
+    
+    Vue.component("modal-portaria-reconhecimento-list",ModalPortariaReconhecimentoList)    
+    Vue.component("modal-portaria-reconhecimento-add",ModalPortariaReconhecimentoAdd)    
+    Vue.component("modal-portaria-reconhecimento-edit",ModalPortariaReconhecimentoEdit)
+    
+    Vue.component("modal-decreto-list",ModalDecretoList)
+    Vue.component("modal-decreto-add",ModalDecretoAdd)
+    Vue.component("modal-decreto-edit",ModalDecretoEdit)
+    
+    Vue.component("modal-matricula-list",ModalMatriculaList)
+    Vue.component("modal-matricula-add",ModalMatriculaAdd)
+    Vue.component("modal-matricula-edit",ModalMatriculaEdit)
+    
+    Vue.component("modal-assentamento-list",ModalAssentamentoList)
+    Vue.component("modal-assentamento-add",ModalAssentamentoAdd)
+    Vue.component("modal-assentamento-edit",ModalAssentamentoEdit)
+    
+    Vue.component("modal-ccdru-list",ModalCcdruList)
+    Vue.component("modal-ccdru-add",ModalCcdruAdd)
+    Vue.component("modal-ccdru-edit",ModalCcdruEdit)
+       		
+	
+	Vue.use(VeeValidate);
+	const app = new Vue( {
+			el: '#app',
+		    data() {
+		        return {
+		            data:[],
+		            municipios:[],
+		            defaultOpenedDetails: [0],
+		            paginationPosition: 'bottom',
+		            showDetailIcon: false,
+		            isPaginated: true,
+		            isStriped: true,
+		            mobileCards: true,
+		            perPage: 5,
+		            currentPage: 1,
+		            total:0,
+		            page: 1,
+		            title:"Territórios",
+		            isNarrowed:true,
+		            isCertificadoActive: false,
+		            isMunicipioActive: false,
+		            isQuilomboActive: false,
+		            isMatriculaActive: false,
+		            isNovoMunicipioActive: false,
+		            isEditarMunicipioActive: false,
+		            isVincularMunicipioActive:false,
+		            isDecretoActive:false,
+		            isPortariaActive:false,
+		            isPortariaReconhecimentoActive:false,
+		            isEditalComunicacaoActive:false,
+		            isEditalComunicacao2Active:false,
+		            isTituloPropriedadeActive: false,
+		            isProcessoAdministrativoActive: false,
+		            isAssentamentoEstadualActive: false,
+		            isAssentamentoFederalActive: false,
+		            isCcdruActive: false,
+		            isDadosActive: false,
+		            isEmpty: false,
+		            dataMunicipio:[],
+		            objectToEditMunicipio:null,
+		            defaultOpenedDetails:[],
+		            labelPosition: 'on-border',
+		            sortField: 'nome',
+	                sortOrder: 'asc',
+	                defaultSortOrder: 'asc',
+	                textoBusca: null,
+	                filter:{
+            				field: null,
+            				operator: null,
+            				value: null
+            			},
+            		sorting:{
+                			field: null,
+                			direction: null
+                		},
+	                filterBody: {
+                		page: null,
+                		size: null,
+                		filters:[],
+                		sorting:null
+	                }
+		            
+		        }
+		    },
+		    methods: {
+		        toggle(row) {
+		            this.defaultOpenedDetails = [row.id]
+		        },
+		        
+				loadAsyncData() {
+		        	
+		        	if(this.textoBusca != null){
+		        		
+		        		this.filterBody.filters=[
+							{
+								"field" : "nome",
+					        	"operator" : "CONTENDO_STR",
+					        	"value" : this.textoBusca
+							}
+							,
+							{
+								"field" : "id",
+					        	"operator" : "IGUAL",
+					        	"value" : this.textoBusca
+							}
+		        		]
+		        		
+		        	}
+		        	this.filterBody.page = this.page-1
+		        	this.filterBody.size = this.perPage
+		        	
+		        	this.sorting.field = this.sortField
+		        	this.sorting.direction = this.sortOrder.toUpperCase()
+		        	this.filterBody.sorting = this.sorting
+		        	
+		        	
+	                
+	                crudService.anyPostOperationWihtObject(URL_CRITERIA, this.filterBody, r => {
+	                	this.data = []
+	 					this.data = r.data.content
+	 					this.perPage = r.data.size
+	 					this.total = r.data.totalElements
+					})
+	                
+		        }
+		        
+		        ,
+		        onPageChange(page) {
+		        	this.data = []
+	                this.page = page
+	                this.loadAsyncData()
+	            },
+	            onPerPageChange(){
+	            	this.data = []
+	            	this.page=1
+	            	this.currentPage=1
+	            	this.loadAsyncData()
+	            },
+	            gotToNew() {
+	                window.location.href = "territorios/novo";
+	            },
+	            gotToExport() {
+	                window.location.href = "territorios/exportar";
+	            },
+	            gotToUrl(url) {
+	                window.location.href = url;
+	            },
+	            onSort(field, order) {
+	                this.sortField = field
+	                this.sortOrder = order
+	                this.loadAsyncData()
+	            },
+	            limparBusca() {
+	            	this.textoBusca = null
+	            	this.filterBody.filters = []
+	            	this.loadAsyncData()
+	            },
+	            onDelete(id){
+	            	var excluir = confirm("Deseja Excluir registro? Esta operação não poderá ser desfeita!")
+	            	
+	            	if(excluir){	            		
+	            		crudService.delete(URL, id, r => {
+		 					if(r.data.success){
+		 						this.data = []
+		 						this.loadAsyncData()
+		 					}
+						})
+	            	}
+	            	
+	            },
+	            confirmCustomDelete(id) {
+	                this.$buefy.dialog.confirm({
+	                    title: 'Excluir Registro',
+	                    message: 'Deseja Excluir registro? Esta operação não poderá ser desfeita!',
+	                    confirmText: 'Excluir',
+	                    cancelText: "Cancelar",
+	                    type: 'is-danger',
+	                    hasIcon: true,
+	                    onConfirm: () => {
+	                    	crudService.delete(URL, id, r => {
+			 					if(r.data.success){
+			 						this.data = []
+			 						this.loadAsyncData()
+			 					}
+							})
+	                    	this.$buefy.toast.open({
+			                    duration: 5000,
+			                    message: "Registro Excluído com sucesso!",
+			                    position: 'is-top',
+			                    type: 'is-success'
+			                })
+                    	}
+	                })
+	            },
+	            localDateConverter(date){
+	            	var _date = new Date(date);
+	            	var _dateFormated = _date.toLocaleDateString();
+	            	return _dateFormated;
+	            },
+	            ativaModelNovoMunicipio(isActive){
+	            	this.isNovoMunicipioActive = isActive
+	            },
+	            ativaModalEditarMunicipio(isActive, _objectToEditMunicipio){
+	            	this.objectToEditMunicipio = _objectToEditMunicipio
+	            	this.isEditarMunicipioActive = isActive
+	            },
+	            ativaModalMunicipio(){
+	            	this.loadAsyncData()
+	            	this.isMunicipioActive = true
+	            },
+	            desativaModalMunicipio(){
+	            	this.isMunicipioActive = false
+	            },
+	            ativaModalVincularMunicipio(){
+	            	this.desativaModalMunicipio()
+	            	this.isVincularMunicipioActive = true
+	            },
+	            desativaModalVincularMunicipio(){
+	            	this.loadAsyncData()
+	            	this.isVincularMunicipioActive = false
+	            	this.ativaModalMunicipio()
+	            },
+	            getMunicipios() {
+        			this.municipios = []
+	                crudService.findAll(municipiosURL, 0, 5000, "nome",  r => {	 
+	 					this.municipios = r.data.content
+					})	                
+		        }
+		    },
+		    mounted() {
+		    	this.data = []
+		    	this.loadAsyncData()
+		    	this.getMunicipios()
+           	},
+
+		})
+
+		            
+  </script>
+	</section>
+</body>
+</html>

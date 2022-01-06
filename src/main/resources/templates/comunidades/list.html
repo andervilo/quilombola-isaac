@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org" lang="pt-br"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/index}" th:with="currentPage='comunidades'">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" th:href="@{/css/buefy.min.css}">
+<link rel="stylesheet" th:href="@{/css/vue-multiselect.min.css}">
+<link rel="stylesheet" href="https://cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css">
+
+<title>Comunidades</title>
+</head>
+<body>
+<section layout:fragment="content">
+
+		<div id="app">
+
+			<section style="padding: 10px 0;">
+
+				<div class="column is-full">
+
+
+					<div class="card">
+						<header class="card-header">
+							<h2 class="card-header-title">{{ title }}</h2>
+							
+						</header>
+						<div class="card-content">
+							<div class="">
+								<b-field label="Mostrar" :label-position="labelPosition" grouped group-multiline> <b-select
+									v-model="perPage" :disabled="!isPaginated"
+									@change.native="onPerPageChange">
+								<option value="5">5 por página</option>
+								<option value="10">10 por página</option>
+								<option value="15">15 por página</option>
+								<option value="20">20 por página</option>
+								</b-select>
+								<div class="control">
+									<b-button @click.native="gotToNew" type="is-success"><i class="fa fa-plus-circle"></i><b> Novo</b></b-button>
+								</div>
+								
+								<div class="control">
+									<b-button @click.native="gotToExport" type="is-success">
+									<i class="fa fa-file-excel"></i>
+									<b> Exportar</b></b-button>
+								</div>
+								</b-field>
+								
+								<b-field label="Buscar Comunidade(s)" :label-position="labelPosition">
+						            <b-input v-model="textoBusca" expanded @keyup.enter.native="loadAsyncData" placeholder="Nome, parte do nome ou ID"></b-input>
+						            <div class="control">
+										<b-button  @click.native="loadAsyncData" type="is-info"><i class="fa fa-search"></i><b> Buscar</b></b-button>
+									</div>
+						            <div class="control">
+										<b-button  @click.native="limparBusca" type="is-danger"><i class="fa fa-broom"></i><b> Resetar Busca</b></b-button>
+									</div>
+						        </b-field>
+
+								<b-table
+									v-show="!isLoading" 
+									:data="data" 
+									ref="table" 
+									paginated 
+									:mobile-cards="mobileCards"
+									:per-page="perPage"
+									:total="total" 
+									@page-change="onPageChange" 
+									:current-page.sync="currentPage"
+									backend-pagination
+									:pagination-position="paginationPosition"
+									:striped="isStriped"
+									detailed 
+									detail-key="id"
+									@details-open="(row, index) => toggle(row, index)"
+									:opened-detailed="defaultOpenedDetails"
+									aria-next-label="Next page" 
+									aria-previous-label="Previous page"
+									aria-page-label="Page" 
+									aria-current-label="Current page"
+									
+									backend-sorting
+						            :default-sort-direction="defaultSortOrder"
+						            :default-sort="[sortField, sortOrder]"
+									@sort="onSort"
+									>
+									
+									<template slot-scope="props"> 
+										 
+										<b-table-column field="codigo" label="ID" width="40" numeric> 
+											{{ props.row.id }} 
+											 
+										</b-table-column> 
+										<b-table-column field="nome" label="Nome d Comunidade" sortable> 
+											{{ props.row.nome }}
+										</b-table-column>
+																				
+										<b-table-column field="" label="" width="150"> 	
+											<a class="button "  title="Ver Informações da Comunidade!" @click="onRowSelect(props.row)">                                        
+		                                        <i style="color: #20bc56;" class="fas fa-eye"></i>
+		                                    </a>										
+											<b-button title="Editar Usuário" @click.native="gotToUrl('/sigequi/comunidades/editar/'+props.row.id)" size="is-small" type="is-warning"><i style="color:#fff" class="fa fa-edit"></i></b-button>											
+											<b-button @click.native="confirmCustomDelete(props.row.id)" size="is-small" type="is-danger"><i class="fa fa-eraser"></i></b-button>
+										</b-table-column> 
+										
+										
+									</template> 
+									<template slot="detail" slot-scope="props">
+										<table>	
+											
+											<tr><td>
+												<button class="button is-info is-small"
+												@click="ativaModalMunicipio"><i class="fas fa-eye"></i>&nbsp;&nbsp;Municípios</button>
+											</td></tr>	
+											
+											<tr><td>
+												<button class="button is-info is-small "
+												@click="isCertificadoActive = true"><i class="fas fa-eye"></i>&nbsp;&nbsp;Certificado</button>
+											</td></tr>
+											
+											<tr><td>
+												<button class="button is-info is-small"
+												@click="isDadosActive = true"><i class="fas fa-eye"></i>&nbsp;&nbsp;Dados Adicionais</button>
+											</td></tr>
+											
+											
+											
+										</table>
+										
+										<b-modal can-cancel :active.sync="isCertificadoActive" animation
+											:width="700" has-modal-card> 
+											<modal-certificados-list 
+												:data="props.row.certificados"
+												:id="props.row.id">
+											</modal-certificados-list>
+										</b-modal>
+										
+<!-- 										<b-modal can-cancel :active.sync="isCertificadoActive" animation -->
+<!-- 											:width="700" has-modal-card>  -->
+<!-- 											<modal-certificado  -->
+<!-- 												:data="props.row.certificado" -->
+<!-- 												:territorio="props.row"> -->
+<!-- 											</modal-certificado> -->
+<!-- 										</b-modal> -->
+								
+								<b-modal can-cancel :active.sync="isMunicipioActive" animation
+									:width="700" has-modal-card> 
+									<modal-municipio
+										@ativa-novo-municipio="ativaModelNovoMunicipio(true)"
+										@ativa-editar-municipio="ativaModalEditarMunicipio"
+										@desativa-modal-municipio="desativaModalMunicipio"
+										@ativa-modal-municipio="ativaModalMunicipio"
+										@ativa-modal-vincular-municipio="ativaModalVincularMunicipio"
+										@reload-data="loadAsyncData"
+										:data-municipios="props.row">
+									</modal-municipio>
+								</b-modal>
+								
+								<b-modal
+									can-cancel :active.sync="isDadosActive" animation
+									:width="700" has-modal-card> 
+									<modal-dados-adicionais
+										:comunidade="props.row">
+									</modal-dados-adicionais>
+								</b-modal> 
+									
+								<b-modal
+									can-cancel :active.sync="isNovoMunicipioActive" animation
+									:width="700" has-modal-card> 									
+									<modal-add-municipio
+										@desativa-novo-municipio="ativaModelNovoMunicipio(false)"
+										@reload-data="loadAsyncData"
+										:data="props.row">
+									</modal-add-municipio>
+								</b-modal> 
+								
+								<b-modal
+									can-cancel :active.sync="isEditarMunicipioActive" animation
+									:width="700" has-modal-card> 									
+									<modal-edite-municipio
+										@desativa-edite-municipio="ativaModalEditarMunicipio"
+										@reload-data="loadAsyncData"
+										:data="props.row"
+										:to-edite="objectToEditMunicipio">
+									</modal-edite-municipio>
+								</b-modal>
+								
+								<b-modal
+									can-cancel :active.sync="isVincularMunicipioActive" animation
+									:width="700" has-modal-card> 									
+									<modal-vincular-municipio
+										@desativa-modal-municipio="desativaModalMunicipio"
+										@ativa-modal-municipio="ativaModalMunicipio"
+										@desativa-modal-vincular-municipio="desativaModalVincularMunicipio"
+										@ativa-modal-vincular-municipio="ativaModalVincularMunicipio"
+										:territorio="props.row"
+										:list-municipios="municipios">
+									</modal-vincular-municipio>
+								</b-modal>
+								
+									</template>
+								</b-table>
+								
+								<div id="MODAIS_COMUNIDADES">
+		                            <b-modal :active.sync="isModalViewComunidadeQuilombo" animation
+		                                :width="700" has-modal-card full-screen> 
+		                                <modal-view-comunidade-quilombo :data="selected"></modal-view-comunidade-quilombo>
+		                            </b-modal>
+		                        </div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+		</div>
+
+
+	<script th:src="@{/js/vue.js}"></script>
+	<script th:src="@{/js/vee-validate.js}"></script>
+	<script th:src="@{/js/vue-multiselect.min.js}"></script>
+	<script th:src="@{/js/axios.min.js}"></script>
+	<script th:src="@{/js/dataservices/CrudService.js}"></script>
+  	<script th:src="@{/js/buefy.min.js}"></script>
+  	<script th:src="@{/js/lodash.min.js}"></script>
+	
+	
+	
+	<script th:inline="javascript">
+		const URL_BASE =  /*[[${session.BASE_URL_API}]]*/ "";
+	</script>
+	
+	<!-- 	Import dos modais -->
+		<script th:src="@{/js/modals/comunidade/ModalMunicipio.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalVincularMunicipio.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalQuilombo.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalAddMunicipio.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalEditeMunicipio.js}"></script>		
+		
+		<script th:src="@{/js/modals/comunidade/ModalCertificado.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalCertificadosList.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalCertificadosAdd.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalCertificadosEdit.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalDadosAdicionais.js}"></script>		
+		
+		<script th:src="@{/js/modals/quilombo/ModalViewComunidadeQuilombo.js}"></script>
+	
+	<script>
+	const URL = URL_BASE+"/comunidades/";
+	const URL_ENABLE_DISABLE_USER = URL_BASE+"/security/usuarios/enable-disable";
+	const superintendenciasURL = URL_BASE+"/superintendencias";
+	const URL_CRITERIA = URL_BASE+"/comunidades/criteria";
+	Vue.use(VeeValidate);
+// 	Vue.use(axios);
+		
+	Vue.component("modal-certificado",ModalCertificado)
+	Vue.component("modal-certificados-list",ModalCertificadosList)
+	Vue.component("modal-certificados-add",ModalCertificadosAdd)
+	Vue.component("modal-certificados-edit",ModalCertificadosEdit)
+    Vue.component("modal-municipio",ModalMunicipio)
+    Vue.component("modal-add-municipio",ModalAddMunicipio,)
+    Vue.component("modal-edite-municipio",ModalEditeMunicipio)
+    Vue.component("modal-vincular-municipio",ModalVincularMunicipio)    
+	Vue.component("modal-quilombo",ModalQuilombo)
+	Vue.component("modal-dados-adicionais",ModalDadosAdicionais)
+	Vue.component("ModalViewComunidadeQuilombo",ModalViewComunidadeQuilombo)
+	Vue.component("modal-dados-adicionais",ModalDadosAdicionais)
+    
+    
+	
+	
+	
+	const app = new Vue( {
+			el: '#app',
+		    data() {
+		        return {
+		            data:[],
+		            defaultOpenedDetails: [0],
+		            paginationPosition: 'bottom',
+		            showDetailIcon: false,
+		            isPaginated: true,
+		            isStriped: true,
+		            mobileCards: true,
+		            perPage: 5,
+		            currentPage: 1,
+		            total:0,
+		            page: 1,
+		            title:"Comunidades",
+		            userIdSelected: null,
+		            userNameSelected: null,
+		            isLoading: false,
+		            isFullPage: false,
+		            isNarrowed:true,
+		            isCertificadoActive: false,
+		            isMunicipioActive: false,
+		            isQuilomboActive: false,
+		            isMatriculaActive: false,
+		            isNovoMunicipioActive: false,
+		            isEditarMunicipioActive: false,
+		            isVincularMunicipioActive:false,
+		            isDecretoActive:false,
+		            isPortariaActive:false,
+		            isPortariaReconhecimentoActive:false,
+		            isEditalComunicacaoActive:false,
+		            isTituloPropriedadeActive: false,
+		            isProcessoAdministrativoActive: false,
+		            isAssentamentoEstadualActive: false,
+		            isAssentamentoFederalActive: false,
+		            isDadosActive: false,
+		            isModalViewComunidadeQuilombo: false,
+		            isEditalComunicacao2Active: false,
+		            objectToEditMunicipio:null,
+		            municipios:[],
+		            selected: null,
+		            labelPosition: 'on-border',
+		            sortField: 'nome',
+	                sortOrder: 'asc',
+	                defaultSortOrder: 'asc',
+	                textoBusca: null,
+	                filter:{
+            				field: null,
+            				operator: null,
+            				value: null
+            			},
+            		sorting:{
+                			field: null,
+                			direction: null
+                		},
+	                filterBody: {
+                		page: null,
+                		size: null,
+                		filters:[],
+                		sorting:null
+	                }
+		            
+		        }
+		    },
+		    methods: {
+		        toggle(row) {
+		        	this.defaultOpenedDetails = [row.id]
+		        },
+		        gotToExport() {
+	                window.location.href = "comunidades/exportar";
+	            },
+		        
+				loadAsyncData() {
+		        	
+		        	if(this.textoBusca != null){
+		        		
+		        		this.filterBody.filters=[
+							{
+								"field" : "nome",
+					        	"operator" : "CONTENDO_STR",
+					        	"value" : this.textoBusca
+							}
+							,
+							{
+								"field" : "id",
+					        	"operator" : "IGUAL",
+					        	"value" : this.textoBusca
+							}
+		        		]
+		        		
+		        	}
+		        	this.filterBody.page = this.page-1
+		        	this.filterBody.size = this.perPage
+		        	
+		        	this.sorting.field = this.sortField
+		        	this.sorting.direction = this.sortOrder.toUpperCase()
+		        	this.filterBody.sorting = this.sorting	        	
+		        	
+	                crudService.anyPostOperationWihtObject(URL_CRITERIA, this.filterBody, r => {
+	                	this.data = []
+	 					this.data = r.data.content
+	 					this.perPage = r.data.size
+	 					this.total = r.data.totalElements
+					})
+	                
+		        }
+		        
+// 		        loadAsyncData() {
+//                 	this.data = []
+// 	                crudService.findAll(URL, this.page-1 , this.perPage, null, r => {
+// 	 					this.data = r.data.content
+// 	 					this.perPage = r.data.size
+// 	 					this.total = r.data.totalElements
+// 					})
+// 		        }
+		        ,
+		        openLoading() {
+	                this.isLoading = true
+	                setTimeout(() => {
+	                    this.isLoading = false
+	                }, 2000)
+	            },
+		        onPageChange(page) {
+		        	this.data = []
+	                this.page = page
+	                this.loadAsyncData()
+	            },
+	            onPerPageChange(){
+	            	this.data = []
+	            	this.page=1
+	            	this.currentPage=1
+	            	this.loadAsyncData()
+	            },
+	            gotToNew() {
+	                window.location.href = "comunidades/novo";
+	            },
+	            gotToUrl(url) {
+	                window.location.href = url;
+	            },
+	            onSort(field, order) {
+	                this.sortField = field
+	                this.sortOrder = order
+	                this.loadAsyncData()
+	            },
+	            limparBusca() {
+	            	this.textoBusca = null
+	            	this.filterBody.filters = []
+	            	this.loadAsyncData()
+	            },
+	            onDelete(id){
+	            	var excluir = confirm("Deseja Excluir registro? Esta operação não poderá ser desfeita!")
+	            	
+	            	if(excluir){	            		
+	            		crudService.delete(URL, id, r => {
+		 					if(r.data.success){
+		 						this.data = []
+		 						this.loadAsyncData()
+		 					}
+						})
+	            	}
+	            	
+	            },
+	            confirmCustomDelete(id) {
+	                this.$buefy.dialog.confirm({
+	                    title: 'Excluir Registro',
+	                    message: 'Deseja Excluir registro? Esta operação não poderá ser desfeita!',
+	                    confirmText: 'Excluir',
+	                    cancelText: "Cancelar",
+	                    type: 'is-danger',
+	                    hasIcon: true,
+	                    onConfirm: () => {
+	                    	crudService.delete(URL, id, r => {
+			 					if(r.data.success){
+			 						this.data = []
+			 						this.loadAsyncData()
+			 					}
+							})
+	                    	this.$buefy.toast.open({
+			                    duration: 5000,
+			                    message: "Registro Excluído com sucesso!",
+			                    position: 'is-top',
+			                    type: 'is-success'
+			                })
+                    	}
+	                })
+	            },
+	            ativaModelNovoMunicipio(isActive){
+	            	this.isNovoMunicipioActive = isActive
+	            },
+	            ativaModalEditarMunicipio(isActive, _objectToEditMunicipio){
+	            	this.objectToEditMunicipio = _objectToEditMunicipio
+	            	this.isEditarMunicipioActive = isActive
+	            },
+	            ativaModalMunicipio(){
+	            	this.loadAsyncData()
+	            	this.isMunicipioActive = true
+	            },
+	            desativaModalMunicipio(){
+	            	this.isMunicipioActive = false
+	            },
+	            ativaModalVincularMunicipio(){
+	            	this.desativaModalMunicipio()
+	            	this.isVincularMunicipioActive = true
+	            },
+	            desativaModalVincularMunicipio(){
+	            	this.loadAsyncData()
+	            	this.isVincularMunicipioActive = false
+	            	this.ativaModalMunicipio()
+	            },
+	            onRowSelect(_selected){
+	            	console.log(_selected)
+	            	if(_selected.dadosAdicionais == null){
+	            		_selected.certificada = false;
+	            		_selected.processosReconhecimento = false;
+	            		_selected.edital = false;
+	            		_selected.concessao = false;
+	            		_selected.titulada = false;
+	            		_selected.copiaTituloArquivoAutor = false;
+	            		_selected.publicacaoTerraQuilombo = false;
+	            		_selected.quilomboUrbano = false;
+	            		_selected.peqTeq = false;
+	            	}
+                    this.selected = _selected
+                    this.isModalViewComunidadeQuilombo = true
+                }
+	            
+		    },
+		    mounted() {
+		    	this.loadAsyncData()
+           	},
+		})
+
+		            
+  </script>
+</section>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org" lang="pt-br"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/index}" th:with="currentPage='territorios'">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" th:href="@{/css/buefy.min.css}">
+<link rel="stylesheet"
+	href="https://cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css">
+<!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.6/css/all.css"> -->
+<!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"> -->
+
+
+
+<title>Exportar</title>
+</head>
+<body>
+	<section layout:fragment="content">
+
+		<div id="app">
+
+			<section style="padding: 10px 0;">
+
+				<div class="column is-full">
+
+
+					<div class="card">
+						<header class="card-header">
+							<h2 class="card-header-title">Exportar dados de Territórios</h2>
+
+						</header>
+						<div class="card-content">
+							<div class=" column is-half">
+								<template> 
+								<b-field label="Estado"> 
+								<b-select
+									v-model="estado" placeholder="Selecione um Estado">
+									<option v-for="estado in estados" :value="estado" :key="estado">
+									{{ estado }}</option>
+								</b-select>
+								
+								</b-field> 
+								
+								<b-field label="Relatório"> 
+								<b-select
+									v-model="relatorio"
+									placeholder="Selecione um Relatório" required>
+									<option v-for="relatorio in relatorios" :value="relatorio.id"
+									:key="relatorio.id">{{ relatorio.relatorio }}</option>									
+								</b-select>
+								
+								</b-field> 
+								
+								<b-button @click.native="exportar" type="is-info">
+								<i class="fa fa-file-excel"></i> Exportar</b-button> <b-button
+									@click.native="gotToUrl('/sigequi/territorios')"
+									type="is-danger">
+								<i class="fa fa-arrow-left"></i> Cancelar</b-button> </template>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</section>
+
+
+
+		</div>
+
+
+		<script th:src="@{/js/vue.js}"></script>
+		<script th:src="@{/js/vee-validate.js}"></script>
+		<script th:src="@{/js/axios.min.js}"></script>
+		<script th:src="@{/js/lodash.min.js}"></script>
+		<script th:src="@{/js/buefy.min.js}"></script>
+		<script th:src="@{/js/dataservices/CrudService.js}"></script>
+
+		<script th:inline="javascript">
+		const id =/*[[${id}]]*/ 0;
+	</script>
+
+		<script th:inline="javascript">
+		const URL_BASE =  /*[[${session.BASE_URL_API}]]*/ "";
+	</script>
+
+		<script>
+	
+	const URL = URL_BASE+"/relatorios/";
+	
+	Vue.use(VeeValidate);
+	const app = new Vue( {
+			el: '#app',
+		    data() {
+		        return {
+		            estado:null,
+		            relatorio:null,
+		            estados:[
+		            	"AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB",
+		            	"PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"],
+		            relatorios:[
+		            	{id:0, relatorio:"Assentamento"},
+	            		{id:1, relatorio:"CCDRU"},
+	            		{id:2, relatorio:"Decreto"},
+            			{id:3, relatorio:"Edital"},
+            			{id:4, relatorio:"Portaria"},
+           				{id:5, relatorio:"Processo"},
+           				{id:6, relatorio:"Título"}
+		            ]
+		        }
+		    },
+		    methods: {
+		    	gotToUrl(url) {
+	                window.location.href = url;
+	            },
+	            exportar() {
+	            	uri=URL;
+	            	console.log(this.relatorio)
+            		switch(this.relatorio) {
+	            	  case 0:
+	            		  uri = this.estado == null ? uri+"assentamento.xls" : uri+"assentamento.xls/estado/"+this.estado;
+	            	  break;
+	            	    
+	            	  case 1:
+	            		  uri = this.estado == null ? uri+"ccdru.xls" : uri+"ccdru.xls/estado/"+this.estado;
+	            	  break;
+	           	    
+	            	  case 2:
+	            		  uri = this.estado == null ? uri+"decreto.xls" : uri+"decreto.xls/estado/"+this.estado;
+		              break;
+           		  		
+	            	  case 3:
+	            		  uri = this.estado == null ? uri+"edital.xls" : uri+"edital.xls/estado/"+this.estado;
+		              break;
+	            		  
+	            	  case 4:
+	            		  uri = this.estado == null ? uri+"portaria.xls" : uri+"portaria.xls/estado/"+this.estado;
+		              break;
+	            		  
+	            	  case 5:
+	            		  uri = uri+"processo.xls";
+		              break;
+	            		  
+	            	  case 6:
+	            		  uri = this.estado == null ? uri+"titulo.xls" : uri+"titulo.xls/estado/"+this.estado;
+		              break;
+	            		  
+	            	  default:
+	            		  uri = null;
+	            	}
+            		console.log(uri)
+            		if(uri != null){
+            			this.gotToUrl(uri);
+            		}
+	            }
+		    },
+		    mounted() {
+		    	
+           	},
+		})
+		            
+  </script>
+	</section>
+</body>
+</html>

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org" lang="pt-br"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/index}" th:with="currentPage='tiposdocumentos'">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" th:href="@{/css/buefy.min.css}">
+<link rel="stylesheet" href="https://cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css">
+<!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.6/css/all.css"> -->
+<!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"> -->
+
+
+
+<title th:if="${id} > 0">Editar Tipo Documento</title>
+<title th:unless="${id} > 0">Novo Tipo Documento</title>
+</head>
+<body>
+<section layout:fragment="content">
+
+		<div id="app">
+
+			<section style="padding: 10px 0;">
+
+				<div class="column is-full">
+
+
+					<div class="card">
+						<header class="card-header">
+							<h2 th:if="${id} > 0" class="card-header-title">Editar Tipo de Documento</h2>
+							<h2 th:unless="${id} > 0" class="card-header-title">Novo Tipo de Documento</h2>
+							
+						</header>
+						<div class="card-content">
+							<div class="column is-half">
+								<template>
+								        <b-field  label="Tipo" label-position="on-border" width="70px">
+								            <b-input v-model="object.nome" required  placeholder="Tipo" type="text" ></b-input>
+								        </b-field>
+										<b-button @click.native="save"  type="is-info"><i class="fa fa-save"></i> Salvar</b-button>
+								    	<b-button @click.native="gotToUrl('/sigequi/tiposdocumentos')"  type="is-danger"><i class="fa fa-arrow-left"></i> Cancelar</b-button>
+								</template>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</section>
+
+
+
+		</div>
+
+
+	<script th:src="@{/js/vue.js}"></script>
+	<script th:src="@{/js/vee-validate.js}"></script>
+	<script th:src="@{/js/axios.min.js}"></script>
+  	<script th:src="@{/js/buefy.min.js}"></script>
+	<script th:src="@{/js/dataservices/CrudService.js}"></script>
+	
+	<script th:inline="javascript">
+		const id =/*[[${id}]]*/ 0;
+		const URL_BASE =  /*[[${session.BASE_URL_API}]]*/ "";
+	</script>
+	
+	<script>
+	Vue.use(VeeValidate);
+	var URL = URL_BASE+"/tipodocumentos/";
+	const app = new Vue( {
+			el: '#app',
+		    data() {
+		        return {
+		            data:[],
+		            defaultOpenedDetails: [0],
+		            showDetailIcon: true,
+		            paginationPosition: 'bottom',
+		            showDetailIcon: true,
+		            isPaginated: true,
+		            perPage: 5,
+		            currentPage: 1,
+		            total:0,
+		            page: 1,
+		            object:{
+		            	id:null,
+		            	nome:null
+		            }
+		        }
+		    },
+		    methods: {
+		        toggle(row) {
+		            this.$refs.table.toggleDetails(row)
+		        },
+		        save() {
+		        	if(id > 0){
+		        		crudService.update(URL, this.object.id, this.object, r => {
+							if(r.status == 400){
+								this.$buefy.toast.open({
+				                    duration: 20000,
+				                    message: r.data.message,
+				                    position: 'is-top',
+				                    type: 'is-danger'
+				                })
+		 						
+	            				console.log(r)
+		 					}else{
+		 						this.$buefy.toast.open({
+		 		                    duration: 2000,
+		 		                    message: "Usuário alterado com sucesso!",
+		 		                    position: 'is-top',
+		 		                    type: 'is-success'
+		 		                })
+		 		               	setTimeout(function() {window.location.href = "/sigequi/tiposdocumentos"}, 2000)
+		 					}
+						})
+	            	}else{	            		
+	            		crudService.create(URL, this.object, r => {
+							if(r.status == 400){
+								this.$buefy.toast.open({
+				                    duration: 20000,
+				                    message: r.data.message,
+				                    position: 'is-top',
+				                    type: 'is-danger'
+				                })
+		 						
+	            				console.log(r)
+		 					}else{
+		 						this.$buefy.toast.open({
+		 		                    duration: 2000,
+		 		                    message: "Comunidade adicionada com sucesso!",
+		 		                    position: 'is-top',
+		 		                    type: 'is-success'
+		 		                })
+		 		               	setTimeout(function() {window.location.href = "/sigequi/tiposdocumentos"}, 2000)
+		 					}
+						})
+	            	}
+	                
+		        },
+	            gotToUrl(url) {
+	                window.location.href = url;
+	            },
+	            getObject(){
+	            	if(id > 0){
+		            	crudService.findById(URL, id , r => {
+		 					if(r.data.statusCode == 404){
+		 						
+		 					}else{
+		 						this.object = r.data
+		 						console.log(this.object)
+		 					}
+						})	            		
+	            	}
+	            }
+		    },
+		    mounted() {
+		    	this.getObject()
+           	},
+		})
+
+		            
+  </script>
+</section>
+</body>
+</html>

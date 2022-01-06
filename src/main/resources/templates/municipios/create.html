@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org" lang="pt-br"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/index}" th:with="currentPage='municipios'">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" th:href="@{/css/buefy.min.css}">
+<link rel="stylesheet" th:href="@{/css/vue-multiselect.min.css}">
+<link rel="stylesheet" href="https://cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css">
+<!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.6/css/all.css"> -->
+<!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"> -->
+
+
+
+<title th:if="${id} > 0">Editar Município</title>
+<title th:unless="${id} > 0">Novo Município</title>
+</head>
+<body>
+<section layout:fragment="content">
+
+		<div id="app">
+
+			<section style="padding: 10px 0;">
+
+				<div class="column is-full">
+
+
+					<div class="card">
+						<header class="card-header">
+							<h2 class="card-header-title">{{ title }}</h2>
+							
+						</header>
+						<div class="card-content">
+							<div class=" column is-half">
+								<template>
+						        <b-field  label="Nome do Município" width="70px">
+						            <b-input v-model="object.nome" required  placeholder="Tipo" type="text" ></b-input>
+						        </b-field>
+						        <b-field  label="Código IBGE" width="70px">
+						            <b-input v-model="object.codigoIbge" required  placeholder="Tipo" type="text" ></b-input>
+						        </b-field>
+						        <b-field  label="Estado">
+						            <b-select v-model="object.estado" placeholder="Selecione um Estado!">
+						                <option v-for="estado in estados" :value="estado.sigla">{{estado.nome}}</option>
+						            </b-select>
+						        </b-field>
+						        
+						        <label class="typo__label"><b>Comunidade(s)</b></label>
+						        <multiselect 
+								    v-model="object.comunidades" 
+								    :options="comunidades"
+								    :multiple="true"
+								    track-by="id"
+								    label="nome"
+								    placeholder="Selecione uma ou mais Comunidades!"
+								    >
+								    <span slot="noResult">Comunidade não encontrada!.</span>
+								</multiselect><br>
+						        
+						        <label class="typo__label"><b>Superintendência(s)</b></label>
+						        <multiselect 
+								    v-model="object.superintendencias" 
+								    :options="superintendencias"
+								    :multiple="true"
+								    track-by="id"
+								    label="nome"
+								    placeholder="Selecione uma ou mais Superintendências!"
+								    >
+								    <span slot="noResult">Superintendência não encontrada!.</span>
+								</multiselect><br>
+								
+								<label class="typo__label"><b>Território(s)</b></label>
+						        <multiselect 
+								    v-model="object.territorioList" 
+								    :options="territorios"
+								    :multiple="true"
+								    track-by="id"
+								    label="nome"
+								    placeholder="Selecione uma ou mais Territórios!"
+								    >
+								    <span slot="noResult">Território não encontrado!.</span>
+								</multiselect><br>
+								
+						        <b-field>						         
+						            <b-checkbox v-model="object.amazoniaLegal">
+						                Amazônia Legal
+						            </b-checkbox>
+						        </b-field>
+								<b-button @click.native="save"  type="is-info"><i class="fa fa-save"></i> Salvar</b-button>
+						    	<b-button @click.native="gotToUrl('/sigequi/municipios')"  type="is-danger"><i class="fa fa-arrow-left"></i> Cancelar</b-button>
+							</template>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</section>
+
+
+		</div>
+
+
+	<script th:src="@{/js/vue.js}"></script>
+	<script th:src="@{/js/vee-validate.js}"></script>
+	<script th:src="@{/js/vue-multiselect.min.js}"></script>
+	<script th:src="@{/js/axios.min.js}"></script>
+	<script th:src="@{/js/lodash.min.js}"></script>
+  	<script th:src="@{/js/buefy.min.js}"></script>
+	<script th:src="@{/js/dataservices/CrudService.js}"></script>
+	
+	<script th:inline="javascript">
+		const id =/*[[${id}]]*/ 0;
+		const URL_BASE =  /*[[${session.BASE_URL_API}]]*/ "";
+	</script>
+	
+	<script>
+
+	const URL = URL_BASE+"/municipios/";
+	const estadosURL = URL_BASE+"/estados";
+	const superintendenciasURL = URL_BASE+"/superintendencias";
+	const comunidadesURL = URL_BASE+"/comunidades";
+	const territoriosURL = URL_BASE+"/territorios";
+	
+	Vue.use(VeeValidate);
+	const app = new Vue( {
+			el: '#app',
+		    data() {
+		        return {
+		            data:[],
+		            defaultOpenedDetails: [0],
+		            showDetailIcon: true,
+		            paginationPosition: 'bottom',
+		            showDetailIcon: true,
+		            isPaginated: true,		            
+		            perPage: 5,
+		            currentPage: 1,
+		            total:0,
+		            page: 1,
+		            object:{
+		            	id:null,
+		            	nome: null,
+		            	codigoIbge: null,
+		            	estado: null,
+		            	superintendencias: [],
+		            	territorioList: [],
+		            	comunidades: [],
+		            	amazoniaLegal: null
+		            },
+		            estados:[],
+		            superintendencias: [],
+		            territorios: [],
+		            comunidades: [],
+		            title:"",
+		            municipio:null,
+		        }
+		    },
+		    methods: {
+		        toggle(row) {
+		            this.$refs.table.toggleDetails(row)
+		        },
+		        save() {
+		        	this.getComuni(this.object.comunidades)
+		        	this.getSuperints(this.object.superintendencias)
+		        	this.getTerrit(this.object.territorioList)
+		        	if(id > 0){
+		        		
+		        		crudService.update(URL, this.object.id, this.object, r => {
+		 					
+						})
+	            	}else{
+	            		crudService.create(URL, this.object, r => {
+						})
+	            	}
+		        	
+		        	this.$buefy.toast.open({
+	                    duration: 2000,
+	                    message: id > 0 ? "Registro Alterado com sucesso!":  "Registro Adicionado com sucesso!",
+	                    position: 'is-top',
+	                    type: 'is-success'
+	                })
+	                
+ 	                setTimeout(function() {window.location.href = "/sigequi/municipios"}, 2000);
+		        },
+		        onPageChange(page) {
+	                this.page = page
+	                this.loadAsyncData()
+	            },
+	            onPerPageChange(){
+	            	this.page=1
+	            	this.loadAsyncData()
+	            },
+	            gotToUrl(url) {
+	                window.location.href = url;
+	            },
+	            setTitle(){
+	            	if(id > 0){
+	            		this.title = "Editar Município"
+	            	}else{
+	            		this.title = "Novo Município"
+	            	}
+	            },
+	            getObject(){
+	            	if(id > 0){
+		            	crudService.findById(URL, id , r => {
+		 					if(r.data.statusCode == 404){
+		 						
+		 					}else{
+		 						this.object = r.data
+		 						this.object.estado = this.object.estado.sigla
+		 					}
+						})	            		
+	            	}
+	            },
+	            getEstados(){
+	            	crudService.findAllNoPagination(estadosURL, r => {
+	 					this.estados = _.sortBy(r.data, ['nome'])
+					})	
+	            },
+	            getSuperintendencias(){
+	            	crudService.findAllNoPagination(superintendenciasURL, r => {
+	 					this.superintendencias = _.sortBy(r.data.content, ['nome'])
+					})	
+	            },
+	            getTerritorios(){
+	            	crudService.findAllNoPagination(territoriosURL, r => {
+	 					this.territorios = _.sortBy(r.data.content, ['nome'])
+					})	
+	            },
+	            getComunidades(){
+	            	crudService.findAllNoPagination(comunidadesURL, r => {
+	 					this.comunidades = _.sortBy(r.data.content, ['nome'])
+					})	
+	            },
+	            onSelected(){
+	            	console.log(this.$refs.superint.selected)
+	            },
+	            getSuperints(idsSuper){
+	            	sup = []	            	
+	            	idsSuper.forEach((item, index)=>{
+	            		sup.push({id:item.id})
+	            	})
+	            	this.object.superintendencias=[]
+	            	this.object.superintendencias=sup
+	            },
+	            getTerrit(ids){
+	            	sup = []	            	
+	            	ids.forEach((item, index)=>{
+	            		sup.push({id:item.id})
+	            	})
+	            	this.object.territorioList=[]
+	            	this.object.territorioList=sup
+	            },
+	            getComuni(ids){
+	            	sup = []	            	
+	            	ids.forEach((item, index)=>{
+	            		sup.push({id:item.id})
+	            	})
+	            	this.object.comunidades=[]
+	            	this.object.comunidades=sup
+	            }
+		    },
+		    mounted() {
+		    	this.setTitle()		    	
+		    	this.getObject()
+		    	this.getEstados()
+		    	this.getSuperintendencias()
+		    	this.getTerritorios()
+		    	this.getComunidades()
+           	},
+			components: {
+    			Multiselect: window.VueMultiselect.default
+  			}
+		})
+		            
+  </script>
+</section>
+</body>
+</html>

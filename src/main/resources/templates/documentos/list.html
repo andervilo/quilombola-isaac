@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org" lang="pt-br"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/index}" th:with="currentPage='quilombos'">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="https://unpkg.com/buefy/dist/buefy.min.css">
+<link rel="stylesheet" href="https://cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css">
+<!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.6/css/all.css"> -->
+<!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"> -->
+
+<style type="text/css">
+	.b-table{
+		background-color: #fff;
+	}
+</style>
+
+<title>DashBoard</title>
+</head>
+<body>
+<section layout:fragment="content">
+
+<div id="app">
+
+			<section style="padding: 10px 0;">
+
+				<div class="column is-full">
+
+
+					<div class="card">
+						<header class="card-header">
+							<h2 class="card-header-title">Lista de Documentos do Quilombo</h2>
+							
+						</header>
+						<div class="card-content">
+							<div class="">
+								<b-field grouped group-multiline> <b-select
+									v-model="perPage" :disabled="!isPaginated"
+									@change.native="onPerPageChange">
+								<option value="5">5 por página</option>
+								<option value="10">10 por página</option>
+								<option value="15">15 por página</option>
+								<option value="20">20 por página</option>
+								</b-select>
+								<div class="control">
+									<b-button @click.native="gotToNew" type="is-success"><i class="fa fa-plus-circle"></i><b> Novo</b></b-button>
+								</div>
+								</b-field>
+
+        <b-table
+            :data="data"
+            ref="table"
+            paginated
+            :per-page="perPage"
+            :pagination-position="paginationPosition"
+            :opened-detailed="defaultOpenedDetails"
+            detailed
+            detail-key="id"
+            :show-detail-icon="showDetailIcon"
+            aria-next-label="Next page"
+            aria-previous-label="Previous page"
+            aria-page-label="Page"
+            aria-current-label="Current page">
+
+            <template slot-scope="props">
+                <b-table-column field="id" label="ID" width="40" numeric>
+					{{ props.row.id }}
+                </b-table-column>
+
+                <b-table-column field="nomeDocumento" label="Documento" sortable>
+					{{ props.row.nomeDocumento }}
+                </b-table-column>
+
+                <b-table-column field="caminho" label="Caminho" sortable>
+					<a href="#">{{ props.row.caminho }}</a>
+                </b-table-column>
+                
+                <b-table-column field="tipoDocumento.nome" label="Tipo" sortable>
+					{{ props.row.tipoDocumento.nome }}
+                </b-table-column> <b-table-column field="" label="" width="100"> 
+                	<b-button size="is-small" type="is-danger">
+						<i class="fa fa-eraser"></i>
+					</b-button> 
+					<b-button size="is-small" type="is-warning">
+						<i style="color: #fff" class="fa fa-edit"></i>
+					</b-button> 
+				</b-table-column> 
+                
+            </template>
+
+            <template slot="detail" slot-scope="props">
+                <article class="media">
+<figure class="media-left">
+    <p class="image is-64x64">
+        <img src="https://buefy.org/static/img/placeholder-128x128.png">
+    </p>
+</figure>
+<div class="media-content">
+    <div class="content">
+        <p>
+            <strong>{{ props.row.nomeDocumento }} {{ props.row.caminho }}</strong>
+            <small>{{ props.row.tipoDocumento.nome }}</small>
+            <small>31m</small>
+            <br>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+            Proin ornare magna eros, eu pellentesque tortor vestibulum ut.
+            Maecenas non massa sem. Etiam finibus odio quis feugiat facilisis.
+        </p>
+    </div>
+</div>
+                </article>
+            </template>
+        </b-table>
+		</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+
+
+		</div>
+	<script th:src="@{/js/vue.js}"></script>
+	<script th:src="@{/js/vee-validate.js}"></script>
+	<script th:src="@{/js/axios.min.js}"></script>
+  	<script th:src="@{/js/buefy.min.js}"></script>
+	<script th:src="@{js/dataservices/CrudService.js}"></script>
+	
+	<script>
+	var URL = "/sigequi/api/v1/documentos/";
+	Vue.use(VeeValidate);
+	const app = new Vue( {
+			el: '#app',
+		    data() {
+		        return {
+		            data:[],
+		            defaultOpenedDetails: [0],
+		            paginationPosition: 'bottom',
+		            showDetailIcon: true,
+		            isPaginated: true,
+		            perPage: 5,
+		            currentPage: 1,
+		            total:0,
+		            page: 1,
+		        }
+		    },
+		    methods: {
+		        toggle(row) {
+		            this.$refs.table.toggleDetails(row)
+		        },
+		        loadAsyncData() {
+	                
+	                crudService.findAll(URL, this.page-1 , this.perPage, null, r => {
+	 					this.data = r.data.content
+	 					this.perPage = r.data.size
+	 					this.total = r.data.totalElements
+	 					console.log(this.data)
+					})
+	                
+		        },
+		        onPageChange(page) {
+	                this.page = page
+	                this.loadAsyncData()
+	            },
+	            onPerPageChange(){
+	            	this.page=1
+	            	this.currentPage=1
+	            	this.loadAsyncData()
+	            },
+	            gotToNew() {
+	                window.location.href = "documentos/novo";
+	            }
+		    },
+		    mounted() {
+		    	this.loadAsyncData()
+           	},
+		})
+		            
+	</script>
+</section>
+</body>
+</html>

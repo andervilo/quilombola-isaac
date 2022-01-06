@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org" lang="pt-br"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/index}" th:with="currentPage='estados'">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" th:href="@{/css/buefy.min.css}">
+<link rel="stylesheet" href="https://cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css">
+
+<title>Estados</title>
+</head>
+<body>
+<section layout:fragment="content">
+
+		<div id="app">
+
+			<section style="padding: 10px 0;">
+
+				<div class="column is-full">
+
+
+					<div class="card">
+						<header class="card-header">
+							<h2 class="card-header-title">{{ title }}</h2>
+							
+						</header>
+						<div class="card-content">
+							<div class="">
+								<b-field grouped group-multiline> 
+									<b-select v-model="perPage" :disabled="!isPaginated" @change.native="onPerPageChange">
+									<option value="5">5 por página</option>
+									<option value="10">10 por página</option>
+									<option value="15">15 por página</option>
+									<option value="20">20 por página</option>
+									</b-select>
+								</b-field>
+
+								<b-table 
+									:data="data" 
+									ref="table" 
+									paginated 
+									:mobile-cards="mobileCards"
+									:per-page="perPage"
+									:total="total" 
+									@page-change="onPageChange" 
+									backend-pagination
+									:current-page.sync="currentPage"
+									:pagination-position="paginationPosition" 
+									:striped="isStriped"
+									:show-detail-icon="showDetailIcon"
+									aria-next-label="Next page" 
+									aria-previous-label="Previous page"
+									aria-page-label="Page" 
+									aria-current-label="Current page">
+									
+								<template slot-scope="props"> 
+									 
+									<b-table-column centered field="codigoIbge" label="Cód IBGE" width="120" numeric sortable> 
+										{{ props.row.codigoIbge }} 										 
+									</b-table-column> 
+									
+									<b-table-column field="nome" label="Estado" width="170" sortable> 
+										{{ props.row.nome }}
+									</b-table-column>
+									
+									<b-table-column centered field="sigla" label="Sigla" width="70" sortable> 
+										{{ props.row.sigla }}
+									</b-table-column>
+									
+									<b-table-column field="regiao.nome" label="Região" sortable> 
+										<span class="tag "
+											v-bind:class="{
+												'is-success': props.row.regiao.codigo==1,
+												'is-warning': props.row.regiao.codigo==2,
+												'is-danger': props.row.regiao.codigo==3,
+												'is-primary': props.row.regiao.codigo==4,
+												'is-info': props.row.regiao.codigo==5,
+											}"
+										>
+											{{ props.row.regiao.nome }}
+										</span>
+									</b-table-column>
+									 
+								</template> 
+								</b-table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+
+
+		</div>
+
+
+	<script th:src="@{/js/vue.js}"></script>
+	<script th:src="@{/js/vee-validate.js}"></script>
+	<script th:src="@{/js/axios.min.js}"></script>
+	<script th:src="@{/js/lodash.min.js}"></script>
+  	<script th:src="@{/js/buefy.min.js}"></script>
+	<script th:src="@{/js/dataservices/CrudService.js}"></script>
+	
+	<script th:inline="javascript">
+		const URL =  /*[[${session.BASE_URL_API}]]*/ "";
+	</script>
+	
+	<script>
+	
+	Vue.use(VeeValidate);
+	const app = new Vue( {
+			el: '#app',
+		    data() {
+		        return {
+		            data:[],
+		            defaultOpenedDetails: [0],
+		            paginationPosition: 'bottom',
+		            showDetailIcon: false,
+		            isPaginated: true,
+		            isStriped: true,
+		            mobileCards: true,
+		            perPage: 5,
+		            currentPage: 1,
+		            total:27,
+		            page: 1,
+		            title:"Estados",
+		            
+		        }
+		    },
+		    methods: {
+		        toggle(row) {
+		            this.$refs.table.toggleDetails(row)
+		        },
+		        loadAsyncData() {
+		        	crudService.findAllNoPagination(URL+"/estados", r => {
+	 					this.data = _.sortBy(r.data, ['nome'])
+					})
+	                
+		        },
+		        onPageChange(page) {
+	                this.page = page
+	                this.loadAsyncData()
+	            },
+	            onPerPageChange(){
+	            	this.page=1
+	            	this.currentPage=1
+	            	this.loadAsyncData()
+	            },
+	            gotToUrl(url) {
+	                window.location.href = url;
+	            },
+		    },
+		    mounted() {
+		    	this.loadAsyncData()
+           	},
+		})
+
+		            
+  </script>
+</section>
+</body>
+</html>

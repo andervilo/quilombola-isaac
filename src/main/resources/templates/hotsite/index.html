@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=yes" />
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+
+    <title>SIPGQ Público</title>
+
+    <!-- Required Stylesheets -->
+    <link
+      type="text/css"
+      rel="stylesheet"
+      href="/sigequi/hotsite_assets/css/bootstrap.min.css"
+    />
+    <link
+      type="text/css"
+      rel="stylesheet"
+      href="/sigequi/hotsite_assets/css/bootstrap-vue.css"
+    />
+    <link
+      type="text/css"
+      rel="stylesheet"
+      href="/sigequi/fontawesome5.1/css/all.css"
+    />
+
+    <style>
+        #svg-map path { fill:#0094d9 }
+        #svg-map text { fill:#fff; font:12px Arial-BoldMT, sans-serif; cursor:pointer }
+        #svg-map a{ text-decoration:none }
+        #svg-map a:hover { cursor:pointer; text-decoration:none }
+        #svg-map a:hover path{ fill:#003399 !important }
+        #svg-map a:active path{ fill:#003399 !important }
+        #svg-map .circle { fill:#66ccff }
+        #svg-map a:hover .circle { fill:#003399 !important; cursor:pointer }
+    </style>
+
+    <!-- Load polyfills to support older browsers -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es2015%2CIntersectionObserver"></script>
+
+    <!-- Required scripts -->
+    <script src="/sigequi/hotsite_assets/js/vue.js"></script>
+    <script src="/sigequi/hotsite_assets/js/bootstrap-vue.js"></script>
+    <script src="/sigequi/hotsite_assets/js/vue-router.js"></script>
+    <script src="/sigequi/hotsite_assets/js/axios.min.js"></script>
+    <script src="/sigequi/fontawesome5.1/js/all.js"></script>
+    <script src="/sigequi/js/lodash.min.js"></script>
+  </head>
+  <body>
+    <!-- Our application root element -->
+    <div id="app">
+            <div>                
+                <b-navbar toggleable="lg" type="dark" variant="success">
+                    <b-container>
+                        <b-navbar-brand href="#">
+                        	<img  width="70" src="/sigequi/hotsite_assets/img/logo.jpeg"/>
+<!--                         <span class="font-italic font-weight-bold">SIPQ</span> -->
+                        </b-navbar-brand>
+                  
+                        <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+                  
+                        <b-collapse id="nav-collapse" is-nav >
+                            <b-navbar-nav class="ml-auto">
+                                <b-nav-item class="text-uppercase text-white-50" to="/" >Home</b-nav-item>
+                                <b-nav-item class="text-uppercase text-white" to="/pesquisar" >Pesquisar Informações</b-nav-item>
+                                
+                                <b-nav-item-dropdown
+							      id="my-nav-dropdown"
+							      text="RELATÓRIOS"
+							      toggle-class="nav-link-custom"
+							      right
+							    >
+							    	<b-dropdown-item class="text-uppercase text-white" to="/territorios" >Território</b-dropdown-item>
+							    	<b-dropdown-item class="text-uppercase text-white" to="/comunidades" >Comunidade</b-dropdown-item>
+							      
+							    </b-nav-item-dropdown>
+                                
+                                <b-nav-item-dropdown
+							      id="my-nav-dropdown"
+							      text="INFORMAÇÔES"
+							      toggle-class="nav-link-custom"
+							      right
+							    >
+							    	<b-dropdown-item class="text-uppercase text-white" to="/sobre" >Sobre Nós</b-dropdown-item>
+							    	<b-dropdown-item class="text-uppercase text-white" to="/contexto" >luta pelo reconhecimento de direitos</b-dropdown-item>
+							    	<b-dropdown-item class="text-uppercase text-white" to="/legislacao" >Legislação e Direitos</b-dropdown-item>
+							    	<b-dropdown-item class="text-uppercase text-white" to="/etapas" >Etapas de Regularização Fundiária</b-dropdown-item>
+							    	<b-dropdown-item class="text-uppercase text-white" to="/sipgq" >O que é o SIPGQ?</b-dropdown-item>
+							      
+							    </b-nav-item-dropdown>
+                                
+                                <b-nav-item class="text-uppercase text-white" to="/contato" >Contato</b-nav-item>
+                                <b-nav-item class="text-uppercase text-white" href="/sigequi/dashboard" >Área Restrita</b-nav-item>
+                                <b-nav-item class="text-uppercase text-white" href="/sigequi/logout" >
+									<b-button pill size="sm" variant="danger">SAIR</b-button>
+								</b-nav-item>
+                            </b-navbar-nav>                        
+                        </b-collapse>
+                    </b-container>
+                </b-navbar>                    
+            </div>
+            <b-container  class="pt-1">
+                <router-view></router-view>
+            </b-container>
+    </div>
+
+    <!-- Start running your app -->
+    <script src="/sigequi/hotsite_assets/component_pages/mapa.js"></script>
+    <script src="/sigequi/hotsite_assets/component_pages/contato.js"></script>
+    <script src="/sigequi/hotsite_assets/component_pages/sobre.js"></script>
+    <script src="/sigequi/hotsite_assets/component_pages/pesquisa.js"></script>
+    <script src="/sigequi/hotsite_assets/component_pages/territorio-exportar.js"></script>
+    <script src="/sigequi/hotsite_assets/component_pages/comunidade-exportar.js"></script>
+    <script src="/sigequi/hotsite_assets/component_pages/contexto.js"></script>
+    <script src="/sigequi/hotsite_assets/component_pages/legislacao.js"></script>
+    <script src="/sigequi/hotsite_assets/component_pages/etapas.js"></script>
+    <script src="/sigequi/hotsite_assets/component_pages/sipdgq.js"></script>
+	
+    <script>
+        const home = {
+            data: function () {
+                return {
+                    count: 0
+                }
+            },
+            template: '<div><mapa title="Dados resumidos por Estado"></mapa></div>'
+        }
+
+        const errorNotFound = {
+            data: function () {
+                return {
+                    title: 'Not Found'
+                }
+            },
+            template: '<div >Erro 404</div>',
+            mounted() {
+            }
+        }
+        
+        
+        
+
+        Vue.component("pesquisar",pesquisar)
+
+        const routes = [
+            { path: '/', component: home },
+            { path: '/pesquisar', component: pesquisar },
+            { path: '/contato', component: contato },
+            { path: '/sobre', component: sobre },
+            { path: '/territorios', component: territorioexportar },
+            { path: '/comunidades', component: comunidadeexportar },
+            { path: '/contexto', component: contexto },
+            { path: '/legislacao', component: legislacao },
+            { path: '/etapas', component: etapas },
+            { path: '/sipgq', component: sipdgq },
+            { path: '/*', component: errorNotFound },
+        ];
+
+        const router = new VueRouter({
+            routes
+        });
+
+        Vue.component('mapa', mapa)
+        
+        window.app = new Vue({
+            el: '#app',
+            data: {
+                name: ''
+            },
+            computed: {
+                showAlert() {
+                    return this.name.length > 4 ? true : false
+                }
+            },
+            router
+        })
+    </script>
+  </body>
+</html>

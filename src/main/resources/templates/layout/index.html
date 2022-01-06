@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+	xmlns:th="http://www.thymeleaf.org" lang="pt-br">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>SIPQ V-1.1</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="robots" content="all,follow">
+    <!-- Bootstrap CSS-->
+    <link rel="stylesheet" th:href="@{/layout/vendor/bootstrap/css/bootstrap.min.css}">
+    <!-- Font Awesome CSS-->
+    <link rel="stylesheet" th:href="@{/layout/vendor/font-awesome/css/font-awesome.min.css}">
+    <!-- Fontastic Custom icon font-->
+    <link rel="stylesheet" th:href="@{/layout/css/fontastic.css}">
+    <!-- Google fonts - Poppins -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,700">
+    <!-- theme stylesheet-->
+    <link rel="stylesheet" th:href="@{/layout/css/style.default.css}" id="theme-stylesheet">
+    <!-- Custom stylesheet - for your changes-->
+    <link rel="stylesheet" th:href="@{/layout/css/custom.css}">
+    <!-- Favicon-->
+    <link rel="shortcut icon" th:href="@{/img/favicon.ico}">
+    <!-- Tweaks for older IEs--><!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script><![endif]-->
+       
+<!--     <link rel="stylesheet" th:href="@{/layout/vendor/font-awesome/css/font-awesome.min.css}"> -->
+
+	<style type="text/css">
+		.card-header-title{
+			font-size: 30px;		
+		}
+	</style>
+  </head>
+  <body>
+    <div class="page">
+      <!-- Main Navbar-->
+      <header class="header">
+        <nav class="navbar" style="padding-top: 10px; padding-bottom: 0px;">
+          <!-- Search Box-->
+          <div class="search-box">
+            <button class="dismiss"><i class="icon-close"></i></button>
+            <form id="searchForm" action="#" role="search">
+              <input type="search" placeholder="What are you looking for..." class="form-control">
+            </form>
+          </div>
+          <div class="container-fluid">
+            <div class="navbar-holder d-flex align-items-center justify-content-between">
+              <!-- Navbar Header-->
+              <div class="navbar-header">
+                <!-- Navbar Brand --><a th:href="@{/dashboard}" class="navbar-brand d-none d-sm-inline-block">
+                  <div class="brand-text d-none d-lg-inline-block"><span></span><strong>SIPQ</strong></div>
+                  <div class="brand-text d-none d-sm-inline-block d-lg-none"><strong>SIPQ</strong></div></a>
+                <!-- Toggle Button--><a id="toggle-btn" href="#" class="menu-btn active"><span></span><span></span><span></span></a>
+              </div>
+              <!-- Navbar Menu -->
+<!--               <ul class="nav-menu list-unstyled d-flex flex-md-row align-items-md-center"> -->
+<!--                 Search -->
+<!--                 <li class="nav-item d-flex align-items-center"><a id="search" href="#"><i class="icon-search"></i></a></li> -->
+<!--                 Notifications -->
+<!--                 <li class="nav-item dropdown"> <a id="notifications" rel="nofollow" data-target="#" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link"><i class="fa fa-bell"></i><span class="badge bg-red badge-corner">12</span></a> -->
+<!--                   <ul aria-labelledby="notifications" class="dropdown-menu"> -->
+<!--                     <li><a rel="nofollow" href="#" class="dropdown-item">  -->
+<!--                         <div class="notification"> -->
+<!--                           <div class="notification-content"><i class="fa fa-envelope bg-green"></i>You have 6 new messages </div> -->
+<!--                           <div class="notification-time"><small>4 minutes ago</small></div> -->
+<!--                         </div></a></li> -->
+<!--                     <li><a rel="nofollow" href="#" class="dropdown-item">  -->
+<!--                         <div class="notification"> -->
+<!--                           <div class="notification-content"><i class="fa fa-twitter bg-blue"></i>You have 2 followers</div> -->
+<!--                           <div class="notification-time"><small>4 minutes ago</small></div> -->
+<!--                         </div></a></li> -->
+<!--                     <li><a rel="nofollow" href="#" class="dropdown-item">  -->
+<!--                         <div class="notification"> -->
+<!--                           <div class="notification-content"><i class="fa fa-upload bg-orange"></i>Server Rebooted</div> -->
+<!--                           <div class="notification-time"><small>4 minutes ago</small></div> -->
+<!--                         </div></a></li> -->
+<!--                     <li><a rel="nofollow" href="#" class="dropdown-item">  -->
+<!--                         <div class="notification"> -->
+<!--                           <div class="notification-content"><i class="fa fa-twitter bg-blue"></i>You have 2 followers</div> -->
+<!--                           <div class="notification-time"><small>10 minutes ago</small></div> -->
+<!--                         </div></a></li> -->
+<!--                     <li><a rel="nofollow" href="#" class="dropdown-item all-notifications text-center"> <strong>view all notifications                                            </strong></a></li> -->
+<!--                   </ul> -->
+<!--                 </li> -->
+<!--                 Messages                        -->
+<!--                 <li class="nav-item dropdown"> <a id="messages" rel="nofollow" data-target="#" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link"><i class="fa fa-envelope"></i><span class="badge bg-orange badge-corner">10</span></a> -->
+<!--                   <ul aria-labelledby="notifications" class="dropdown-menu"> -->
+<!--                     <li><a rel="nofollow" href="#" class="dropdown-item d-flex">  -->
+<!--                         <div class="msg-profile"> <img th:src="@{/layout/img/avatar-1.jpg}" alt="..." class="img-fluid rounded-circle"></div> -->
+<!--                         <div class="msg-body"> -->
+<!--                           <h3 class="h5">Jason Doe</h3><span>Sent You Message</span> -->
+<!--                         </div></a></li> -->
+<!--                     <li><a rel="nofollow" href="#" class="dropdown-item d-flex">  -->
+<!--                         <div class="msg-profile"> <img th:src="@{/layout/img/avatar-2.jpg}" alt="..." class="img-fluid rounded-circle"></div> -->
+<!--                         <div class="msg-body"> -->
+<!--                           <h3 class="h5">Frank Williams</h3><span>Sent You Message</span> -->
+<!--                         </div></a></li> -->
+<!--                     <li><a rel="nofollow" href="#" class="dropdown-item d-flex">  -->
+<!--                         <div class="msg-profile"> <img th:src="@{/layout/img/avatar-3.jpg}" alt="..." class="img-fluid rounded-circle"></div> -->
+<!--                         <div class="msg-body"> -->
+<!--                           <h3 class="h5">Ashley Wood</h3><span>Sent You Message</span> -->
+<!--                         </div></a></li> -->
+<!--                     <li><a rel="nofollow" href="#" class="dropdown-item all-notifications text-center"> <strong>Read all messages   </strong></a></li> -->
+<!--                   </ul> -->
+<!--                 </li> -->
+<!--                 Languages dropdown    -->
+<!--                 <li class="nav-item dropdown"><a id="languages" rel="nofollow" data-target="#" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link language dropdown-toggle"><img th:src="@{/layout/img/flags/16/GB.png}" alt="English"><span class="d-none d-sm-inline-block">English</span></a> -->
+<!--                   <ul aria-labelledby="languages" class="dropdown-menu"> -->
+<!--                     <li><a rel="nofollow" href="#" class="dropdown-item"> <img th:src="@{/layout/img/flags/16/DE.png}" alt="English" class="mr-2">German</a></li> -->
+<!--                     <li><a rel="nofollow" href="#" class="dropdown-item"> <img th:src="@{/layout/img/flags/16/FR.png}" alt="English" class="mr-2">French                                         </a></li> -->
+<!--                   </ul> -->
+<!--                 </li> -->
+<!--                 Logout    -->
+<!--                 <li class="nav-item"> -->
+<!--                 <a th:href="@{/logout}" class="nav-link logout"> <span class="d-none d-sm-inline"><b>SAIR</b></span> <i class="fa fa-sign-out-alt"></i></a> -->
+<!--                 </li> -->
+<!--               </ul> -->
+           
+            </div>
+          </div>
+        </nav>
+      </header>
+      <div class="page-content d-flex align-items-stretch"> 
+        <!-- Side Navbar -->
+        <nav class="side-navbar">
+          <!-- Sidebar Header-->
+          <div style="padding: 3px 3px;" class="sidebar-header d-flex align-items-center">
+            <div class="avatar" style="width: 100px; height: 100px;">
+              <img width="100" th:src="@{/api/v1/user-foto/}+${session.ID_USUARIO_LOGADO}" alt="..." class="img-fluid rounded-circle"></div>
+            <div class="title">
+              <h1 class="h4">
+              	<span th:text="${session.NOME_USUARIO_LOGADO}" th:unless="${session == null}">[...]</span>
+              	<div class="dropdown">
+				  <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				    Conta
+				  </button>
+				  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+				    <a th:href="@{/alterar-foto/}+${session.ID_USUARIO_LOGADO}" class="dropdown-item nav-link logout"> <span class=""><i class="fa fa-camera"></i> <b>Alterar foto</b></span> </a>
+				    <a th:href="@{/alterar-senha/}+${session.ID_USUARIO_LOGADO}" class="dropdown-item nav-link logout"> <span class=""><i class="fa fa-key"></i> <b>Alterar senha</b></span> </a>
+				    <a th:href="@{/logout}" class="dropdown-item nav-link logout"> <span class=""><i class="fa fa-sign-out-alt"></i> <b>Sair</b></span> </a>
+				  </div>
+				</div>
+              </h1>
+            </div>
+          </div>
+          <!-- Sidebar Navidation Menus-->
+<!--           <span class="heading" th:text="${outra}">Main</span> -->
+          <ul class="list-unstyled">
+            <li th:classappend="${currentPage == 'dashboard'} ? 'active'"><a  th:href="@{/dashboard}"> <i  class=" fa fa-angle-right"></i><b>&nbsp;&nbsp;DASHBOARD</b> </a></li>
+            <li sec:authorize="hasAnyAuthority('MASTER','ADMINISTRADOR')" th:classappend="${currentPage == 'permissoes'} ? 'active'"><a   th:href="@{/permissoes}"> <i class="fas fa-angle-right"></i><b>&nbsp;&nbsp;PERMISSÕES</b> </a></li>
+            <li sec:authorize="hasAnyAuthority('MASTER','ADMINISTRADOR')" th:classappend="${currentPage == 'usuarios'} ? 'active'"><a   th:href="@{/usuarios}"> <i class="fas fa-angle-right"></i><b>&nbsp;&nbsp;USUÁRIOS</b> </a></li>
+            <li sec:authorize="hasAnyAuthority('CRUD_TERRITORIO', 'READ_TERRITORIO', 'MASTER','ADMINISTRADOR')" th:classappend="${currentPage == 'territorios'} ? 'active'"><a   th:href="@{/territorios}"> <i class="fas fa-angle-right"></i><b>&nbsp;&nbsp;TERRITÓRIOS</b> </a></li>
+            <li sec:authorize="hasAnyAuthority('CRUD_QUILOMBO', 'READ_QUILOMBO', 'MASTER','ADMINISTRADOR')" th:classappend="${currentPage == 'quilombos'} ? 'active'"><a   th:href="@{/quilombos}"> <i class="fa fa-angle-right"></i><b>&nbsp;&nbsp;QUILOMBOS</b> </a></li>
+            <li sec:authorize="hasAnyAuthority('CRUD_COMUNIDADE', 'READ_COMUNIDADE', 'MASTER','ADMINISTRADOR')" th:classappend="${currentPage == 'comunidades'} ? 'active'"><a   th:href="@{/comunidades}"> <i class="fa fa-angle-right"></i><b>&nbsp;&nbsp;COMUNIDADES</b> </a></li>
+            <li sec:authorize="hasAnyAuthority('CRUD_MUNICIPIO', 'READ_MUNICIPIO', 'MASTER','ADMINISTRADOR')" th:classappend="${currentPage == 'municipios'} ? 'active'"><a   th:href="@{/municipios}"> <i class="fa fa-angle-right"></i><b>&nbsp;&nbsp;MUNICÍPIOS</b> </a></li>
+            <li sec:authorize="hasAnyAuthority('READ_ESTADOS', 'MASTER','ADMINISTRADOR')" th:classappend="${currentPage == 'estados'} ? 'active'"><a   th:href="@{/estados}"><i class="fa fa-angle-right"></i><b>&nbsp;&nbsp;ESTADOS</b> </a></li>
+<!--             <li sec:authorize="hasAnyAuthority('CRUD_TIPO_CONCESSAO', 'MASTER','ADMINISTRADOR')" th:classappend="${currentPage == 'tiposconcessoes'} ? 'active'"><a   th:href="@{/tiposconcessoes}"><i class="fa fa-angle-right"></i><b>&nbsp;&nbsp;TIPOS CONCESSÂO</b> </a></li> -->
+            <li sec:authorize="hasAnyAuthority('CRUD_ORGAO', 'READ_ORGAO', 'MASTER','ADMINISTRADOR')" th:classappend="${currentPage == 'orgaos'} ? 'active'"><a   th:href="@{/orgaos}"> <i class="fa fa-angle-right"></i><b>&nbsp;&nbsp;ORGÃOS</b> </a></li>
+            <li sec:authorize="hasAnyAuthority('CRUD_SUPERINTENDENCIA', 'MASTER','ADMINISTRADOR')" th:classappend="${currentPage == 'superintendencias'} ? 'active'"><a   th:href="@{/superintendencias}"> <i class="fa fa-angle-right"></i><b>&nbsp;&nbsp;SUPERINTENDÊNCIAS</b> </a></li>
+            <li sec:authorize="hasAnyAuthority('CRUD_CONTATOS', 'MASTER','ADMINISTRADOR')" th:classappend="${currentPage == 'contatos'} ? 'active'"><a   th:href="@{/contatos}"> <i class="fa fa-angle-right"></i><b>&nbsp;&nbsp;CONTATOS</b> </a></li>
+<!--             <li><a href="forms.html"> <i class="icon-padnote"></i>Forms </a></li> -->
+<!--             <li><a href="#exampledropdownDropdown" aria-expanded="false" data-toggle="collapse"> <i class="icon-interface-windows"></i>Example dropdown </a> -->
+<!--               <ul id="exampledropdownDropdown" class="collapse list-unstyled "> -->
+<!--                 <li><a href="#">Page</a></li> -->
+<!--                 <li><a href="#">Page</a></li> -->
+<!--                 <li><a href="#">Page</a></li> -->
+<!--               </ul> -->
+<!--             </li> -->
+<!--             <li><a href="login.html"> <i class="icon-interface-windows"></i>Login page </a></li> -->
+          </ul>
+        </nav>
+        <div class="content-inner">
+          <!-- Page Header-->
+<!--           <header class="page-header"> -->
+<!--             <div class="container-fluid"> -->
+<!--               <h2 class="no-margin-bottom">Dashboard</h2> -->
+<!--             </div> -->
+<!--           </header> -->
+          <section class="container-fluid"  layout:fragment="content" >
+          </section>
+          <!-- Page Footer-->
+          <footer class="main-footer">
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col-sm-6">
+                  Elgrably<b style="color: #f1c40f; font-size: 20px">&</b>Oliveira &copy; 2019
+                </div>
+                <div class="col-sm-6 text-right">
+                  <p>Design by <a href="https://bootstrapious.com/p/admin-template" class="external">Bootstrapious</a></p>
+                  <!-- Please do not remove the backlink to us unless you support further theme's development at https://bootstrapious.com/donate. It is part of the license conditions. Thank you for understanding :)-->
+                </div>
+              </div>
+            </div>
+          </footer>
+        </div>
+      </div>
+    </div>
+    <!-- JavaScript files-->
+    <script th:src="@{/layout/vendor/jquery/jquery.min.js}"></script>
+    <script th:src="@{/layout/vendor/popper.js/umd/popper.min.js}"> </script>
+    <script th:src="@{/layout/vendor/bootstrap/js/bootstrap.min.js}"></script>
+    <script th:src="@{/layout/vendor/jquery.cookie/jquery.cookie.js}"> </script>
+    <script th:src="@{/layout/vendor/chart.js/Chart.min.js}"></script>
+    <script th:src="@{/layout/vendor/jquery-validation/jquery.validate.min.js}"></script>
+    <script th:src="@{/layout/js/charts-home.js}"></script>
+    <script th:src="@{/fontawesome5.1/js/all.js}"></script>
+    <!-- Main File-->
+    <script th:src="@{/layout/js/front.js}"></script>
+  </body>
+</html>

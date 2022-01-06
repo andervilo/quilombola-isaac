@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org" lang="pt-br"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/index}" th:with="currentPage='permissoes'">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" th:href="@{/css/buefy.min.css}">
+<link rel="stylesheet" href="https://cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css">
+
+<title>Permissões</title>
+</head>
+<body>
+<section layout:fragment="content">
+
+		<div id="app">
+
+			<section style="padding: 10px 0;">
+
+				<div class="column is-full">
+
+
+					<div class="card">
+						<header class="card-header">
+							<h2 class="card-header-title">{{ title }}</h2>
+							
+						</header>
+						<div class="card-content">
+							<div class="">
+								<b-field grouped group-multiline> <b-select
+									v-model="perPage" :disabled="!isPaginated"
+									@change.native="onPerPageChange">
+								<option value="5">5 por página</option>
+								<option value="10">10 por página</option>
+								<option value="15">15 por página</option>
+								<option value="20">20 por página</option>
+								</b-select>
+								</b-field>
+
+								<b-table 
+									:data="data" 
+									ref="table" 
+									paginated 
+									:mobile-cards="mobileCards"
+									:per-page="perPage"
+									:total="total" 
+									@page-change="onPageChange" 
+									backend-pagination
+									:current-page.sync="currentPage"
+									:pagination-position="paginationPosition" 
+									:striped="isStriped"
+									detail-key="id" 
+									:show-detail-icon="showDetailIcon"
+									aria-next-label="Next page" 
+									aria-previous-label="Previous page"
+									aria-page-label="Page" 
+									aria-current-label="Current page"
+									:narrowed="isNarrowed">
+									
+								<template slot-scope="props"> 
+									 
+									<b-table-column field="codigo" label="ID" width="40" numeric> 
+										{{ props.row.codigo }} 
+										 
+									</b-table-column> 
+									<b-table-column field="descricao" label="Permissão" sortable> 
+										{{ props.row.descricao }}
+									</b-table-column>
+									
+								</template> 
+								</b-table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+
+
+		</div>
+
+	<script th:inline="javascript">
+		const URL_BASE =  /*[[${session.BASE_URL_API}]]*/ "";
+	</script>
+
+	<script th:src="@{/js/vue.js}"></script>
+	<script th:src="@{/js/vee-validate.js}"></script>
+	<script th:src="@{/js/axios.min.js}"></script>
+  	<script th:src="@{/js/buefy.min.js}"></script>
+	<script th:src="@{/js/dataservices/CrudService.js}"></script>
+	
+	
+	
+	<script>
+	var URL = URL_BASE+"/security/permissoes";
+	Vue.use(VeeValidate);
+	const app = new Vue( {
+			el: '#app',
+		    data() {
+		        return {
+		            data:[],
+		            defaultOpenedDetails: [0],
+		            paginationPosition: 'bottom',
+		            showDetailIcon: true,
+		            isPaginated: true,
+		            isStriped: true,
+		            mobileCards: true,
+		            perPage: 5,
+		            currentPage: 1,
+		            total:0,
+		            page: 1,
+		            title:"Permissões",
+		            isNarrowed:true
+		            
+		        }
+		    },
+		    methods: {
+		        toggle(row) {
+		            this.$refs.table.toggleDetails(row)
+		        },
+		        loadAsyncData() {
+	                
+	                crudService.findAll(URL, this.page-1 , this.perPage, null, r => {
+	 					this.data = r.data.content
+	 					this.perPage = r.data.size
+	 					this.total = r.data.totalElements
+	 					console.log(this.data)
+					})
+	                
+		        },
+		        onPageChange(page) {
+	                this.page = page
+	                this.loadAsyncData()
+	            },
+	            onPerPageChange(){
+	            	this.page=1
+	            	this.currentPage=1
+	            	this.loadAsyncData()
+	            },
+	            gotToUrl(url) {
+	                window.location.href = url;
+	            },
+	            onDelete(id){
+	            	var excluir = confirm("Deseja Excluir registro? Esta operação não poderá ser desfeita!")
+	            	
+	            	if(excluir){	            		
+	            		crudService.delete(URL, id, r => {
+		 					if(r.data.success){
+		 						alert(r.data.message)
+		 						this.loadAsyncData()
+		 					}
+						})
+	            	}
+	            	
+	            },
+	            confirmCustomDelete(id) {
+	                this.$dialog.confirm({
+	                    title: 'Excluir Registro',
+	                    message: 'Deseja Excluir registro? Esta operação não poderá ser desfeita!',
+	                    confirmText: 'Excluir',
+	                    cancelText: "Cancelar",
+	                    type: 'is-danger',
+	                    hasIcon: true,
+	                    onConfirm: () => {
+	                    	crudService.delete(URL, id, r => {
+			 					if(r.data.success){
+			 						this.loadAsyncData()
+			 					}
+							})
+	                    	this.$toast.open({
+			                    duration: 5000,
+			                    message: "Registro Excluído com sucesso!",
+			                    position: 'is-top',
+			                    type: 'is-success'
+			                })
+                    	}
+	                })
+	            },
+	            localDateConverter(date){
+	            	var _date = new Date(date);
+	            	var _dateFormated = _date.toLocaleDateString();
+	            	return _dateFormated;
+	            }
+		    },
+		    mounted() {
+		    	this.loadAsyncData()
+           	},
+		})
+
+		            
+  </script>
+</section>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org" lang="pt-br"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/index}"
+	th:with="currentPage='dashboard'">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" th:href="@{/css/buefy.min.css}">
+<link th:href="@{/primevue/resources/themes/nova-light/theme.css}" rel="stylesheet">
+<link th:href="@{/primevue/resources/primevue.min.css}" rel="stylesheet">
+<link th:href="@{/primeicons/primeicons.css}" rel="stylesheet">
+<link th:href="@{/primevue/components/button/Button.css}" rel="stylesheet">
+
+<title>DashBoard</title>
+</head>
+<body>
+<section layout:fragment="content">
+	<br>
+	<div id="contents">
+		<p-datatable :value="tableData" :paginator="true" :rows="10">
+		    <p-column field="id" header="#ID"></p-column>
+		    <p-column field="nomeDocumento" header="Nome Documento"></p-column>
+		    <p-column field="caminho" header="Caminho"></p-column>
+		    <p-column field="tipoDocumento.nome" header="Tipo"></p-column>
+		</p-datatable>
+	</div>
+
+	<script src="https://unpkg.com/vue@2.6.10/dist/vue.js"></script>
+	<script src="https://unpkg.com/@babel/standalone@7.5.5/babel.min.js"></script>
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script th:src="@{/js/dataservices/documentoService.js}"></script>
+	<script th:src="@{/primevue/components/datatable/datatable.umd.js}"></script>
+	<script th:src="@{/primevue/components/column/column.umd.js}"></script>
+	<script th:src="@{/primevue/components/calendar/calendar.umd.js}"></script>
+	<script th:src="@{/primevue/components/selectbutton/selectbutton.umd.js}"></script>
+	<script th:src="@{/primevue/components/paginator/paginator.umd.js}"></script>
+	
+	<script th:inline="javascript">
+		const URL_BASE =  /*[[${session.BASE_URL_API}]]*/ "";
+	</script>
+	
+	<script type="text/babel">
+
+	
+     	var app = new Vue({
+ 			data:function () {
+ 				return {
+ 					msg:"VueJS funcionando!",
+ 					tableData:[],
+ 					selectedCity: null,
+ 					cities: [
+ 						{name: 'London', code: 'LND'},
+ 						{name: 'Paris', code: 'PRS'},
+ 						{name: 'Rome', code: 'RM'}
+ 					],
+ 					value: null,
+ 					first: 0,
+		            totalRecords: 120,
+ 		            totalRecords2: 12
+ 				}
+ 			},
+ 			mounted() {
+             	documentoService.findAll(r => {
+ 					this.tableData = r.data.content
+ 					console.log(this.tableData)
+				})
+           	},
+           	components: {
+           		'p-calendar': calendar,
+           		'p-column': column,
+           		'p-datatable': datatable,
+           		'p-selectbutton': selectbutton,
+           		'p-paginator': paginator,
+           	}
+     	}).$mount('#contents');
+</script>
+</section>
+</body>
+</html>

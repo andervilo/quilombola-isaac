@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org" lang="pt-br"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/index}" th:with="currentPage='comunidades'">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" th:href="@{/css/buefy.min.css}">
+<link rel="stylesheet" href="https://cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css">
+
+<title>Usuários</title>
+</head>
+<body>
+<section layout:fragment="content">
+
+		<div id="app">
+
+			<section style="padding: 10px 0;">
+
+				<div class="column is-full">
+
+
+					<div class="card">
+						<header class="card-header">
+							<h2 class="card-header-title">{{ title }}</h2>
+							
+						</header>
+						<div class="card-content">
+							<div class="">
+								<b-field grouped group-multiline> <b-select
+									v-model="perPage" :disabled="!isPaginated"
+									@change.native="onPerPageChange">
+								<option value="5">5 por página</option>
+								<option value="10">10 por página</option>
+								<option value="15">15 por página</option>
+								<option value="20">20 por página</option>
+								</b-select>
+								<div class="control">
+									<b-button @click.native="gotToNew" type="is-success"><i class="fa fa-plus-circle"></i><b> Novo</b></b-button>
+								</div>
+								</b-field>
+
+								<b-table
+									v-show="!isLoading" 
+									:data="data" 
+									ref="table" 
+									paginated 
+									:mobile-cards="mobileCards"
+									:per-page="perPage"
+									:total="total" 
+									@page-change="onPageChange" 
+									:current-page.sync="currentPage"
+									backend-pagination
+									:pagination-position="paginationPosition"
+									:striped="isStriped"
+									detailed 
+									detail-key="id"
+									aria-next-label="Next page" 
+									aria-previous-label="Previous page"
+									aria-page-label="Page" 
+									aria-current-label="Current page">
+									
+									<template slot-scope="props"> 
+										 
+										<b-table-column field="codigo" label="ID" width="40" numeric> 
+											{{ props.row.id }} 
+											 
+										</b-table-column> 
+										<b-table-column field="nome" label="Nome d Comunidade" sortable> 
+											{{ props.row.nome }}
+										</b-table-column>
+										<b-table-column centered field="numeroComunidades" label="Número de Comunidades" sortable> 
+											{{ props.row.numeroComunidades }}
+										</b-table-column>
+										<b-table-column field="userName" label="Estado" sortable> 
+											{{ props.row.uf.nome }}
+										</b-table-column>
+																				
+										<b-table-column field="" label="" width="150"> 											
+											<b-button title="Editar Usuário" @click.native="gotToUrl('/sigequi/comunidades/editar/'+props.row.id)" size="is-small" type="is-warning"><i style="color:#fff" class="fa fa-edit"></i></b-button>											
+											<b-button @click.native="confirmCustomDelete(props.row.id)" size="is-small" type="is-danger"><i class="fa fa-eraser"></i></b-button>
+										</b-table-column> 
+										
+										
+									</template> 
+									<template slot="detail" slot-scope="props">
+										<datais-tabs :data="props.row"></datais-tabs>
+									</template>
+								</b-table>
+								
+								<b-loading :is-full-page="isFullPage" :active.sync="isLoading" :can-cancel="true"></b-loading>
+								<div id="MODAIS">
+									<b-modal can-cancel :active.sync="isPermissaoActive" animation
+										:width="700" has-modal-card> 
+										<modal-permissoes 
+											:id="userIdSelected"
+											:nome="userNameSelected">
+										</modal-permissoes>
+									</b-modal>
+								</div>
+								
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+		</div>
+
+
+	<script th:src="@{/js/vue.js}"></script>
+	<script th:src="@{/js/vee-validate.js}"></script>
+	<script th:src="@{/js/axios.min.js}"></script>
+	<script th:src="@{/js/dataservices/CrudService.js}"></script>
+  	<script th:src="@{/js/buefy.min.js}"></script>
+  	<script th:src="@{/js/lodash.min.js}"></script>
+	
+	
+	
+	<script th:inline="javascript">
+		const URL_BASE =  /*[[${session.BASE_URL_API}]]*/ "";
+	</script>
+	
+	<!-- 	Import dos modais -->
+	<script th:src="@{/js/modals/usuarios/ModalPermissoes.js}"></script>
+	
+	<!-- 	Import dos modais -->
+		<script th:src="@{/js/modals/comunidade/ModalMunicipio.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalMatricula.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalCertificado.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalQuilombo.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalAddMunicipio.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalEditeMunicipio.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalVincularMunicipio.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalDecreto.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalPortaria.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalPortariaReconhecimento.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalEditalComunicacao.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalTituloPropriedade.js}"></script>
+		<script th:src="@{/js/modals/comunidade/ModalProcessoAdministrativo.js}"></script>
+	
+	<script>
+	const URL = URL_BASE+"/comunidades/";
+	const URL_ENABLE_DISABLE_USER = URL_BASE+"/security/usuarios/enable-disable";
+	Vue.use(VeeValidate);
+// 	Vue.use(axios);
+	
+	Vue.component("modal-permissoes",ModalPermissoes)
+	Vue.component("modal-certificado",ModalCertificado)
+    Vue.component("modal-municipio",ModalMunicipio)
+	Vue.component("modal-quilombo",ModalQuilombo)
+    Vue.component("modal-matricula",ModalMatricula,)
+    Vue.component("modal-add-municipio",ModalAddMunicipio,)
+    Vue.component("modal-edite-municipio",ModalEditeMunicipio)
+    Vue.component("modal-vincular-municipio",ModalVincularMunicipio)
+    Vue.component("modal-decreto",ModalDecreto)
+    Vue.component("modal-portaria",ModalPortaria)
+    Vue.component("modal-portaria-reconhecimento",ModalPortariaReconhecimento)
+    Vue.component("modal-edital-comunicacao",ModalEditalComunicacao)
+    Vue.component("modal-titulo-propriedade",ModalTituloPropriedade)
+    Vue.component("modal-processo-administrativo",ModalProcessoAdministrativo)
+	
+	Vue.component("datais-tabs",{
+		props: ['data'],
+		data() {
+            return {
+                activeTab_1: 6,
+                activeTab_2: 6
+            }
+        },
+		template: `
+			<div>
+		        <b-tabs size="is-small"  type="is-toggle" v-model="activeTab_1" :expanded="true">
+		            <b-tab-item label="Municípios">
+			            <modal-municipio :data_municipios="data.municipios">
+						</modal-municipio>		            	
+		            </b-tab-item>
+	
+		            <b-tab-item label="Certificado">
+		            	<modal-certificado></modal-certificado>
+		            </b-tab-item>
+	
+		            <b-tab-item label="Processo Administrativo">
+		            	<modal-processo-administrativo></modal-processo-administrativo>
+		            </b-tab-item>
+	
+		            <b-tab-item label="Edital">
+		            	<modal-edital-comunicacao></modal-edital-comunicacao>
+		            </b-tab-item>
+		               
+		            <b-tab-item label="Decreto">
+		            	<modal-decreto></modal-decreto>
+		            </b-tab-item>
+		        </b-tabs>
+		        
+		        <b-tabs size="is-small" type="is-toggle" v-model="activeTab_2" :expanded="true">
+		            <b-tab-item label="Título">
+		               Título
+		            </b-tab-item>
+		               
+		            <b-tab-item label="Assentamento Estadual">
+		            	Assentamento Estadual
+		            </b-tab-item>
+		               
+		            <b-tab-item label="Assentamento Federal">
+		            	Assentamento Federal
+		            </b-tab-item>
+		               
+		            <b-tab-item label="Matrícula">
+		            	Matrícula
+		            </b-tab-item>
+		               
+		            <b-tab-item label="Portaria de Reconhecimento">
+		            	Portaria de Reconhecimento
+		            </b-tab-item>
+		        </b-tabs>
+	    	</div>
+		`
+	})
+	
+	
+	const app = new Vue( {
+			el: '#app',
+		    data() {
+		        return {
+		            data:[],
+		            defaultOpenedDetails: [0],
+		            paginationPosition: 'bottom',
+		            showDetailIcon: false,
+		            isPaginated: true,
+		            isStriped: true,
+		            mobileCards: true,
+		            perPage: 5,
+		            currentPage: 1,
+		            total:0,
+		            page: 1,
+		            title:"Comunidades",
+		            isPermissaoActive: false,
+		            userIdSelected: null,
+		            userNameSelected: null,
+		            isLoading: false,
+		            isFullPage: false
+		        }
+		    },
+		    methods: {
+		        toggle(row) {
+		            this.$refs.table.toggleDetails(row)
+		        },
+		        loadAsyncData() {
+		        	
+                	this.data = []
+	                crudService.findAll(URL, this.page-1 , this.perPage, null, r => {
+	 					this.data = r.data.content
+	 					this.perPage = r.data.size
+	 					this.total = r.data.totalElements
+					})
+	                
+		        },
+		        openLoading() {
+	                this.isLoading = true
+	                setTimeout(() => {
+	                    this.isLoading = false
+	                }, 2000)
+	            },
+		        permissaoActive(object){
+		        	this.isPermissaoActive = true
+		        	this.userIdSelected = object.codigo
+		        	this.userNameSelected = object.nome
+		        },
+		        onPageChange(page) {
+		        	this.data = []
+	                this.page = page
+	                this.loadAsyncData()
+	            },
+	            onPerPageChange(){
+	            	this.data = []
+	            	this.page=1
+	            	this.currentPage=1
+	            	this.loadAsyncData()
+	            },
+	            gotToNew() {
+	                window.location.href = "comunidades/novo";
+	            },
+	            gotToUrl(url) {
+	                window.location.href = url;
+	            },
+	            onDelete(id){
+	            	var excluir = confirm("Deseja Excluir registro? Esta operação não poderá ser desfeita!")
+	            	
+	            	if(excluir){	            		
+	            		crudService.delete(URL, id, r => {
+		 					if(r.data.success){
+		 						this.data = []
+		 						this.loadAsyncData()
+		 					}
+						})
+	            	}
+	            	
+	            },
+	            confirmCustomDelete(id) {
+	                this.$buefy.dialog.confirm({
+	                    title: 'Excluir Registro',
+	                    message: 'Deseja Excluir registro? Esta operação não poderá ser desfeita!',
+	                    confirmText: 'Excluir',
+	                    cancelText: "Cancelar",
+	                    type: 'is-danger',
+	                    hasIcon: true,
+	                    onConfirm: () => {
+	                    	crudService.delete(URL, id, r => {
+			 					if(r.data.success){
+			 						this.data = []
+			 						this.loadAsyncData()
+			 					}
+							})
+	                    	this.$buefy.toast.open({
+			                    duration: 5000,
+			                    message: "Registro Excluído com sucesso!",
+			                    position: 'is-top',
+			                    type: 'is-success'
+			                })
+                    	}
+	                })
+	            },
+	            
+		    },
+		    mounted() {
+		    	this.loadAsyncData()
+           	},
+		})
+
+		            
+  </script>
+</section>
+</body>
+</html>

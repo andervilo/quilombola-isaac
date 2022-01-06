@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org" lang="pt-br"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/index}" th:with="currentPage='quilombos'">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" th:href="@{/css/buefy.min.css}">
+<link rel="stylesheet" href="https://cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css">
+
+<title>Quilombos</title>
+</head>
+<body>
+<section layout:fragment="content">
+
+		<div id="app">
+
+			<section style="padding: 10px 0;">
+
+				<div class="column is-full">
+
+
+					<div class="card">
+						<header class="card-header">
+							<h2 class="card-header-title">{{ title }}</h2>
+							
+						</header>
+						<div class="card-content">
+							<div class="">
+								<b-field label="Mostrar" :label-position="labelPosition" grouped group-multiline> <b-select
+									v-model="perPage" :disabled="!isPaginated"
+									@change.native="onPerPageChange">
+									<option value="5">5 por página</option>
+									<option value="10">10 por página</option>
+									<option value="15">15 por página</option>
+									<option value="20">20 por página</option>
+									</b-select>
+									<div class="control">
+										<b-button @click.native="gotToNew" type="is-success"><i class="fa fa-plus-circle"></i><b> Novo</b></b-button>
+									</div>
+								</b-field>
+								
+								<b-field label="Buscar Quilombo(s)" :label-position="labelPosition">
+						            <b-input v-model="textoBusca" expanded @keyup.enter.native="loadAsyncData" placeholder="Nome, parte do nome ou ID"></b-input>
+						            <div class="control">
+										<b-button  @click.native="loadAsyncData" type="is-info"><i class="fa fa-search"></i><b> Buscar</b></b-button>
+									</div>
+						            <div class="control">
+										<b-button  @click.native="limparBusca" type="is-danger"><i class="fa fa-broom"></i><b> Resetar Busca</b></b-button>
+									</div>
+						        </b-field>
+
+								<b-table 
+									:data="data" 
+									ref="table" 
+									paginated 
+									:mobile-cards="mobileCards"
+									:per-page="perPage"
+									:total="total" 
+									
+									@page-change="onPageChange" 
+									:current-page.sync="currentPage"
+									backend-pagination
+									:pagination-position="paginationPosition"
+									:striped="isStriped"
+									aria-next-label="Next page" 
+									aria-previous-label="Previous page"
+									aria-page-label="Page" 
+									aria-current-label="Current page"
+									
+									backend-sorting
+						            :default-sort-direction="defaultSortOrder"
+						            :default-sort="[sortField, sortOrder]"
+									@sort="onSort"
+									>
+									
+								<template slot-scope="props"> 
+									 
+									<b-table-column field="id" label="ID" width="40" numeric sortable> 
+										{{ props.row.id }} 
+										 
+									</b-table-column> 
+									<b-table-column field="identificacaoQuilombola" label="Identificação Quilombo" sortable > 
+										<span >
+											{{ props.row.identificacaoQuilombola }}
+											
+										</span> 
+									</b-table-column>
+									
+									<b-table-column centered field="" label="Comunidade(s)" sortable> 
+										<b-button @click="comunidadesActive(props.row)" size="is-small" type="is-success"><i style="color:#fff" class="fa fa-list"></i></b-button>
+									</b-table-column>
+									
+									<b-table-column centered field="" label="Teritório(s)" sortable> 
+										<b-button @click="territoriosActive(props.row)" size="is-small" type="is-success"><i style="color:#fff" class="fa fa-list"></i></b-button>
+									</b-table-column>
+									
+									 
+									<b-table-column field="" label="" > 
+										<a class="button "  title="Ver Informação do Quilombo!" @click="onRowSelect(props.row)">										
+							                <i style="color: #20bc56;" class="fas fa-eye"></i>
+							            </a>
+							            <a class="button "  title="Editar" @click="gotToUrl('/sigequi/quilombos/editar/'+props.row.id)">										
+							                <i style="color: #ffdba4;" class="fa fa-edit"></i>
+							            </a>
+							            <a class="button "  title="Excluir" @click="confirmCustomDelete(props.row.id)">										
+							                <i style="color: #ff0000;" class="fa fa-eraser"></i>
+							            </a>
+									</b-table-column>
+									 
+								</template> 
+								
+<!-- 								<template slot="empty"> -->
+<!-- 				                    <section class="section"> -->
+<!-- 				                        <div class="content has-text-grey has-text-centered"> -->
+<!-- 				                            <p> -->
+<!-- 				                                <b-icon -->
+<!-- 				                                    icon="emoticon-sad" -->
+<!-- 				                                    size="is-large"> -->
+<!-- 				                                </b-icon> -->
+<!-- 				                            </p> -->
+<!-- 				                            <p>Não há registros para exibir.</p> -->
+<!-- 				                        </div> -->
+<!-- 				                    </section> -->
+<!-- 				                </template> -->
+								</b-table>
+							</div>
+							<div id="MODAIS">
+								<b-modal can-cancel :active.sync="isComunidadesActive" animation
+									:width="700" has-modal-card> 
+									<list-comunidades></list-comunidades>
+								</b-modal>
+								<b-modal can-cancel :active.sync="isTerritoriosActive" animation
+									:width="700" has-modal-card> 
+									<list-territorios></list-territorios>
+								</b-modal>
+							</div>
+						</div>
+					</div>
+				</div>
+				<template>
+				    <section>
+				        <b-modal :active.sync="isComponentModalActive" @desativa-modal-view="desativaModalView" has-modal-card full-screen :can-cancel="false">
+				            <modal-view-quilombo :data="selected"></modal-view-quilombo>
+				        </b-modal>
+				    </section>
+				</template>
+			</section>
+		</div>
+
+
+	<script th:src="@{/js/vue.js}"></script>
+	<script th:src="@{/js/vee-validate.js}"></script>
+	<script th:src="@{/js/axios.min.js}"></script>
+  	<script th:src="@{/js/buefy.min.js}"></script>
+	<script th:src="@{/js/dataservices/CrudService.js}"></script>
+	
+	<script th:src="@{/js/modals/quilombo/ModalViewQuilombo.js}"></script>
+	<script th:src="@{/js/modals/quilombo/TerritorioQuilombo.js}"></script>
+	<script th:src="@{/js/modals/quilombo/ComunidadeQuilombo.js}"></script>
+	<script th:src="@{/js/modals/quilombo/ModalViewComunidadeQuilombo.js}"></script>
+	<script th:src="@{/js/modals/quilombo/CollapseMunicipios.js}"></script>
+	
+	<script th:inline="javascript">
+		const URL_BASE =  /*[[${session.BASE_URL_API}]]*/ "";
+	</script>
+	
+	<script>
+	var URL = URL_BASE+"/quilombos/";
+	const URL_CRITERIA = URL_BASE+"/quilombos/criteria";
+	Vue.use(VeeValidate);
+	
+	Vue.component("list-comunidades",{
+		props: ['data'],
+		template: `
+			<div class="modal-card">
+	            <header class="modal-card-head">
+	                <p class="modal-card-title">
+	                <i class="icon-interface-windows" style="font-size: 30px;"></i> Comunidades
+	                </p>
+	            </header>
+	            <section class="modal-card-body">
+	            <b-table
+	            	:data="$root.comunidadeObject.comunidades"		                        
+	                :striped="true"
+	                :narrowed="true"
+	                :hoverable="true"
+	                :mobile-cards="true"
+	            >
+	                <template slot-scope="props">
+	                
+	                    <b-table-column field="id" label="ID" width="40" numeric>
+	                        {{ props.row.id }}
+	                    </b-table-column>
+	
+	                    <b-table-column field="nome" label="Comunidade">
+	                        {{ props.row.nome }}
+	                    </b-table-column>
+	                </template>
+	                <template slot="empty">
+		                <section class="section">
+		                    <div class="content has-text-grey has-text-centered">
+		                        <p>
+		                            <b-icon
+		                                icon="emoticon-sad"
+		                                size="is-large">
+		                            </b-icon>
+		                        </p>
+		                        <p>Não há registros para exibir.</p>
+		                    </div>
+		                </section>
+		            </template>
+	            </b-table>
+				</section> 
+	            <footer class="modal-card-foot">
+	                <button class="button  is-danger" type="button" @click="$parent.close()">Fechar</button>
+	            </footer>
+        	</div>
+		`
+	})
+	
+	Vue.component("list-territorios",{
+		props: ['data'],
+		template: `
+			<div class="modal-card">
+	            <header class="modal-card-head">
+	                <p class="modal-card-title">
+	                <i class="icon-interface-windows" style="font-size: 30px;"></i> Territórios
+	                </p>
+	            </header>
+	            <section class="modal-card-body">
+	            <b-table
+	            	:data="$root.territorioObject.territorioList"		                        
+	                :striped="true"
+	                :narrowed="true"
+	                :hoverable="true"
+	                :mobile-cards="true"
+	            >
+	                <template slot-scope="props">
+	                
+	                    <b-table-column field="id" label="ID" width="40" numeric>
+	                        {{ props.row.id }}
+	                    </b-table-column>
+	
+	                    <b-table-column field="nome" label="Território">
+	                        {{ props.row.nome }}
+	                    </b-table-column>
+	                </template>
+	                <template slot="empty">
+		                <section class="section">
+		                    <div class="content has-text-grey has-text-centered">
+		                        <p>
+		                            <b-icon
+		                                icon="emoticon-sad"
+		                                size="is-large">
+		                            </b-icon>
+		                        </p>
+		                        <p>Não há registros para exibir.</p>
+		                    </div>
+		                </section>
+		            </template>
+	            </b-table>
+				</section> 
+	            <footer class="modal-card-foot">
+	                <button class="button  is-danger" type="button" @click="$parent.close()">Fechar</button>
+	            </footer>
+        	</div>
+		`
+	})
+	
+	
+	 Vue.component("modal-view-quilombo",ModalViewQuilombo)
+	 Vue.component("territorio-quilombo",TerritorioQuilombo)
+	 Vue.component("comunidade-quilombo",ComunidadeQuilombo)
+	 Vue.component("collapse-municipios",CollapseMunicipios)
+	 Vue.component("modal-view-comunidade-quilombo",ModalViewComunidadeQuilombo)
+	const app = new Vue( {
+			el: '#app',
+		    data() {
+		        return {
+		            data:[],
+		            defaultOpenedDetails: [0],
+		            paginationPosition: 'bottom',
+		            showDetailIcon: false,
+		            isPaginated: true,
+		            isStriped: true,
+		            mobileCards: true,
+		            perPage: 5,
+		            currentPage: 1,
+		            total:0,
+		            page: 1,
+		            title:"Quilombos",
+		            isComponentModalActive: false,
+		            selected: {},
+		            isComunidadesActive: false,
+		            isTerritoriosActive: false,
+		            comunidadeObject: null,
+		            territorioObject: null,
+		            labelPosition: 'on-border',
+		            sortField: 'identificacaoQuilombola',
+	                sortOrder: 'asc',
+	                defaultSortOrder: 'asc',
+	                textoBusca: null,
+	                filter:{
+            				field: null,
+            				operator: null,
+            				value: null
+            			},
+            		sorting:{
+                			field: null,
+                			direction: null
+                		},
+	                filterBody: {
+                		page: null,
+                		size: null,
+                		filters:[],
+                		sorting:null
+	                }
+		            
+		        }
+		    },
+		    methods: {
+		        toggle(row) {
+		            this.$refs.table.toggleDetails(row)
+		        },
+				loadAsyncData() {
+		        	
+		        	if(this.textoBusca != null){
+		        		
+		        		this.filterBody.filters=[
+							{
+								"field" : "nome",
+					        	"operator" : "CONTENDO_STR",
+					        	"value" : this.textoBusca
+							}
+							,
+							{
+								"field" : "id",
+					        	"operator" : "IGUAL",
+					        	"value" : this.textoBusca
+							}
+		        		]
+		        		
+		        	}
+		        	this.filterBody.page = this.page-1
+		        	this.filterBody.size = this.perPage
+		        	
+		        	this.sorting.field = this.sortField
+		        	this.sorting.direction = this.sortOrder.toUpperCase()
+		        	this.filterBody.sorting = this.sorting
+		        	
+		        	
+	                
+	                crudService.anyPostOperationWihtObject(URL_CRITERIA, this.filterBody, r => {
+	                	this.data = []
+	 					this.data = r.data.content
+	 					this.perPage = r.data.size
+	 					this.total = r.data.totalElements
+					})
+	                
+		        },
+		        onPageChange(page) {
+		        	this.data = []
+	                this.page = page
+	                this.loadAsyncData()
+	            },
+	            onPerPageChange(){
+	            	this.data = []
+	            	this.page=1
+	            	this.currentPage=1
+	            	this.loadAsyncData()
+	            },
+	            gotToNew() {
+	                window.location.href = "quilombos/novo";
+	            },
+	            gotToUrl(url) {
+	                window.location.href = url;
+	            },
+	            onSort(field, order) {
+	                this.sortField = field
+	                this.sortOrder = order
+	                this.loadAsyncData()
+	            },
+	            limparBusca() {
+	            	this.textoBusca = null
+	            	this.filterBody.filters = []
+	            	this.loadAsyncData()
+	            },
+	            onDelete(id){
+	            	var excluir = confirm("Deseja Excluir registro? Esta operação não poderá ser desfeita!")
+	            	
+	            	if(excluir){	            		
+	            		crudService.delete(URL, id, r => {
+		 					if(r.data.success){
+		 						this.data = []
+		 						this.loadAsyncData()
+		 					}
+						})
+	            	}
+	            	
+	            },
+	            confirmCustomDelete(id) {
+	                this.$buefy.dialog.confirm({
+	                    title: 'Excluir Registro',
+	                    message: 'Deseja Excluir registro? Esta operação não poderá ser desfeita!',
+	                    confirmText: 'Excluir',
+	                    cancelText: "Cancelar",
+	                    type: 'is-danger',
+	                    hasIcon: true,
+	                    onConfirm: () => {
+	                    	crudService.delete(URL, id, r => {
+			 					if(r.data.success){
+			 						this.data = []
+			 						this.loadAsyncData()
+			 					}
+							})
+	                    	this.$buefy.toast.open({
+			                    duration: 5000,
+			                    message: "Registro Excluído com sucesso!",
+			                    position: 'is-top',
+			                    type: 'is-success'
+			                })
+                    	}
+	                })
+	            },
+	            onRowSelect(_selected){
+	            	this.selected = _selected
+	            	this.isComponentModalActive = true
+	            },
+	            desativaModalView(){
+	            	alert("teste")
+	            	this.selected = null
+	            	this.isComponentModalActive = false
+	            },
+	            comunidadesActive(object){
+		        	this.isComunidadesActive = true
+		        	this.comunidadeObject = object
+		        },
+		        territoriosActive(object){
+		        	this.isTerritoriosActive = true
+		        	this.territorioObject = object
+		        }
+		    },
+		    mounted() {
+		    	this.loadAsyncData()
+           	},
+		})
+
+		            
+  </script>
+</section>
+</body>
+</html>

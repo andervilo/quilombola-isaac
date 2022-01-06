@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<!-- saved from url=(0086)https://www.wrappixel.com/demos/admin-templates/material-pro/material/pages-login.html -->
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<!-- Tell the browser to be responsive to screen width -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="">
+<meta name="author" content="">
+<!-- Favicon icon -->
+<title>Esqueci minha senha</title>
+<!-- Bootstrap Core CSS -->
+<link th:href="@{/assetslogin/bootstrap.min.css}" rel="stylesheet">
+<!-- Custom CSS -->
+<link th:href="@{/assetslogin/style.css}" rel="stylesheet">
+<!-- You can change the theme colors from here -->
+<link th:href="@{/assetslogin/blue.css}" id="theme" rel="stylesheet">
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+<style type="text/css">
+.jqstooltip {
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	visibility: hidden;
+	background: rgb(0, 0, 0) transparent;
+	background-color: rgba(0, 0, 0, 0.6);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000,
+		endColorstr=#99000000);
+	-ms-filter:
+		"progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000)";
+	color: white;
+	font: 10px arial, san serif;
+	text-align: left;
+	white-space: nowrap;
+	padding: 5px;
+	border: 1px solid white;
+	z-index: 10000;
+}
+
+.jqsfield {
+	color: white;
+	font: 10px arial, san serif;
+	text-align: left;
+}
+</style>
+<style type="text/css">
+body {
+
+}
+</style>
+</head>
+
+<body>
+	<!-- ============================================================== -->
+	<!-- Preloader - style you can find in spinners.css -->
+	<!-- ============================================================== -->
+	<div class="preloader" style="display: none;">
+		<svg class="circular" viewBox="25 25 50 50">
+            <circle class="path" cx="50" cy="50" r="20" fill="none"
+				stroke-width="2" stroke-miterlimit="10"></circle> </svg>
+	</div>
+	<!-- ============================================================== -->
+	<!-- Main wrapper - style you can find in pages.scss -->
+	<!-- ============================================================== -->
+	<div id="app">
+		
+		<div class="login-register">
+			<div class="login-box card">
+				<div class="card-body">
+					<div v-if="showSuccess" class="alert alert-success" role="alert">
+					  {{msgSuccess}} <a th:href="@{/login}">Ir para Login.</a>
+					</div>
+					<div v-if="showDanger" class="alert alert-danger" role="alert">
+					  {{msgDanger}}
+					</div>
+					<div v-if="showDangerEN" class="alert alert-danger" role="alert">
+					  Informe E-mail cadastrado!
+					</div>
+					<div class="form-horizontal form-material"
+						id="loginform" >
+						<center>
+							<img  width="350" src="/sigequi/hotsite_assets/img/logo.jpeg"/>
+						
+
+							<h2 class="box-title m-b-20">Esqueci minha senha</h2>
+							
+						</center>
+						<div class="form-group ">
+							<div class="col-xs-12">
+								<input v-model="email" id="email" name="email" class="form-control"
+									type="email" required="" placeholder="Informe o email cadastrado!">
+							</div>
+						</div>
+						<div class="form-group text-center m-t-20">
+							<div class="col-xs-12">
+								<button
+									class="btn btn-info btn-lg btn-block text-uppercase waves-effect waves-light"
+									@click="resetSenha">Redefinir senha</button>
+							</div>
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- ============================================================== -->
+	<!-- End Wrapper -->
+	<!-- ============================================================== -->
+	<!-- ============================================================== -->
+	<!-- All Jquery -->
+	<!-- ============================================================== -->
+	<script th:src="@{/assetslogin/jquery.min.js}"></script>
+	<!-- Bootstrap tether Core JavaScript -->
+	<script th:src="@{/assetslogin/popper.min.js}"></script>
+	<script th:src="@{/assetslogin/bootstrap.min.js}"></script>
+	<!-- slimscrollbar scrollbar JavaScript -->
+	<script th:src="@{/assetslogin/jquery.slimscroll.js}"></script>
+	<!--Wave Effects -->
+	<script th:src="@{/assetslogin/waves.js}"></script>
+	<!--Menu sidebar -->
+	<script th:src="@{/assetslogin/sidebarmenu.js}"></script>
+	<!--stickey kit -->
+	<script th:src="@{/assetslogin/sticky-kit.min.js}"></script>
+	<script th:src="@{/assetslogin/jquery.sparkline.min.js}"></script>
+	<!--Custom JavaScript -->
+	<script th:src="@{/assetslogin/custom.min.js}"></script>
+	<!-- ============================================================== -->
+	<!-- Style switcher -->
+	<!-- ============================================================== -->
+	<script th:src="@{/assetslogin/jQuery.style.switcher.js}"></script>
+	<script th:src="@{/js/vue.js}"></script>
+	<script th:src="@{/js/axios.min.js}"></script>
+	
+	<script>
+	const app = new Vue( {
+		el: '#app',
+	    data() {
+	        return {
+	        	nome: null,
+                email: null,
+                resposta: null,
+                msgDanger: null,
+                msgSuccess: null,
+                showSuccess: false,
+                showDanger: false,
+                showDangerEN: false
+	        }
+	    },
+        methods: {
+        	checarEmail(){
+	       		if( this.email=="" || this.email.indexOf('@')==-1 || this.email.indexOf('.')==-1 ) {
+	       			this.msgDanger = "Informe um email válido!";
+                  	this.showSuccess = false;
+              		this.showDanger = true;
+              		this.showDangerEN = false;
+       			  	return false;
+       			}
+       		},
+        	resetSenha(){
+        		if(this.email != null){
+        			
+        			this.msgSuccess = null;
+        			this.msgDanger = null;
+                	this.showSuccess = false;
+                	this.showDanger = false;
+                	this.showDangerEN = false;
+                	
+        			this.checarEmail();
+        			if(!this.showDanger){
+        				axios
+                        .post('/sigequi/api/v1/hot-site/reset-pass/' + this.email)
+                        .then((response) => {
+                        	this.msgSuccess = "Sua senha foi resetada. Verifique seu E-mail!";
+                        	this.showSuccess = true;
+                        	this.showDanger = false;
+                        	this.showDangerEN = false;
+                        	this.nome = null;
+                        	this.email = null;
+                        })
+                        .catch((error) => {
+                          	this.msgDanger = error.response.data.message;
+                          	this.showSuccess = false;
+                      		this.showDanger = true;
+                      		this.showDangerEN = false;
+                      		console.log(error.response)
+                        });
+        			}
+        		}else{
+        			this.showDangerEN = true;
+        		}
+        	}
+        }
+	})
+    </script>
+
+
+
+</body>
+</html>

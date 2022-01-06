@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org" lang="pt-br"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/index}" th:with="currentPage='usuarios'">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" th:href="@{/css/buefy.min.css}">
+<link rel="stylesheet" href="https://cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css">
+<!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.6/css/all.css"> -->
+<!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"> -->
+
+
+
+<title th:if="${id} > 0">Editar Usuário</title>
+<title th:unless="${id} > 0">Novo Usuário</title>
+</head>
+<body>
+<section layout:fragment="content">
+
+		<div id="app">
+			<section style="padding: 10px 0;">
+
+				<div class="column is-full">
+
+
+					<div class="card">
+						<header class="card-header">
+							<h2 class="card-header-title">{{ title }}</h2>
+							
+						</header>
+						<div class="card-content">
+							<div class=" column is-half">
+								<template>
+						        <b-field   label="Nome"  width="70px">
+						            <b-input v-model="object.nome" required  placeholder="Nome" type="text" ></b-input>
+						        </b-field>
+						        <b-field  label="E-mail"  width="70px">
+						            <b-input v-model="object.email" required  placeholder="E-mail" type="email" ></b-input>
+						        </b-field>
+						        <b-field  label="Login"  width="70px">
+						            <b-input v-model="object.userName" autocomplete="off"  required  placeholder="Login" type="text" ></b-input>
+						        </b-field>
+						        
+						        
+								<b-button @click.native="save"  type="is-info"><i class="fa fa-save"></i> Salvar</b-button>
+						    	<b-button @click.native="gotToUrl('/sigequi/usuarios')"  type="is-danger"><i class="fa fa-arrow-left"></i> Cancelar</b-button>
+							</template>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</section>
+
+
+		</div>
+
+
+	<script th:src="@{/js/vue.js}"></script>
+	<script th:src="@{/js/vee-validate.js}"></script>
+	<script th:src="@{/js/axios.min.js}"></script>
+	<script th:src="@{/js/lodash.min.js}"></script>
+  	<script th:src="@{/js/buefy.min.js}"></script>
+	<script th:src="@{/js/dataservices/CrudService.js}"></script>
+	
+	<script th:inline="javascript">
+		const id =/*[[${id}]]*/ 0;
+		const URL_BASE =  /*[[${session.BASE_URL_API}]]*/ "";
+	</script>
+	
+	<script>
+	
+	const URL = URL_BASE+"/security/usuarios";
+	const estadosURL = URL_BASE+"/estados";
+	
+	Vue.use(VeeValidate);
+	const app = new Vue( {
+			el: '#app',
+		    data() {
+		        return {
+		            data:[],
+		            object:{
+		            	codigo: null,
+		            	nome: null,
+		            	email: null,
+		            	senha: null,
+		            	confirmacaoSenha: null,
+		            	userName: null,
+		            	enabled: true
+		            },
+		            estados:[],
+		            title:"",
+		            municipio:null,
+		            confirmacao: false,
+		            isInclusao: true
+		        }
+		    },
+		    methods: {
+		        toggle(row) {
+		            this.$refs.table.toggleDetails(row)
+		        },
+		        save() {
+		        	if(id > 0){
+		        		axios.put(URL+"/update/",this.object,{headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}})
+		        		.then(response => {
+		        			this.$buefy.toast.open({
+	 		                    duration: 2000,
+	 		                    message: "Usuário alterado com sucesso!",
+	 		                    position: 'is-top',
+	 		                    type: 'is-success'
+	 		                })
+	 		               	setTimeout(function() {window.location.href = "/sigequi/usuarios"}, 2000)
+		        		}, erro => {
+		        			console.log(erro.response)
+	            			this.$buefy.dialog.alert({
+			                    title: 'Erro',
+			                    message: erro.response.data.message,
+			                    type: 'is-danger',
+			                    hasIcon: true,
+			                    icon: 'times-circle',
+			                    iconPack: 'fa'
+			                })
+		        		})
+	            	}
+		        },
+	            gotToUrl(url) {
+	                window.location.href = url;
+	            },
+	            setTitle(){
+	            	if(id > 0){
+	            		this.title = "Editar Usuário"
+	            	}else{
+	            		this.title = "Novo Usuário"
+	            	}
+	            },
+	            getObject(){
+	            	if(id > 0){
+		            	crudService.findById(URL+"/", id , r => {
+		 					if(r.data.statusCode == 404){
+		 						
+		 					}else{
+		 						this.object = r.data
+		 					}
+						})	            		
+	            	}
+	            }
+		    },
+		    mounted() {
+		    	this.setTitle()		    	
+		    	this.getObject()
+		    	
+		    	if(id>0){
+		    		isInclusao = false
+		    	}
+           	},
+		})
+		            
+  </script>
+</section>
+</body>
+</html>

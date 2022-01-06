@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org" lang="pt-br"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/index}" th:with="currentPage='superintendencias'">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" th:href="@{/css/buefy.min.css}">
+<link rel="stylesheet" href="https://cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css">
+
+<title>Superintendências Regionais</title>
+</head>
+<body>
+<section layout:fragment="content">
+
+		<div id="app">
+
+			<section style="padding: 10px 0;">
+
+				<div class="column is-full">
+
+
+					<div class="card">
+						<header class="card-header">
+							<h2 class="card-header-title">{{ title }}</h2>
+							
+						</header>
+						<div class="card-content">
+							<div class="">
+								<b-field grouped group-multiline> <b-select
+									v-model="perPage" :disabled="!isPaginated"
+									@change.native="onPerPageChange">
+								<option value="5">5 por página</option>
+								<option value="10">10 por página</option>
+								<option value="15">15 por página</option>
+								<option value="20">20 por página</option>
+								</b-select>
+								<div class="control">
+									<b-button @click.native="gotToNew" type="is-success">
+									<i class="fa fa-plus-circle"></i>
+									<b> Novo</b></b-button>
+								</div>
+								</b-field>
+
+								<b-table 
+									:data="data" 
+									ref="table" 
+									paginated 
+									:mobile-cards="mobileCards"
+									:per-page="perPage"
+									:total="total" 
+									@page-change="onPageChange" 
+									backend-pagination
+									:current-page.sync="currentPage"
+									:pagination-position="paginationPosition"
+									:opened-detailed="defaultOpenedDetails" 
+									:striped="isStriped"
+									detail-key="id" 
+									:show-detail-icon="false"
+									aria-next-label="Next page" 
+									aria-previous-label="Previous page"
+									aria-page-label="Page" 
+									aria-current-label="Current page"
+									:narrowed="isNarrowed">
+									
+								<template slot-scope="props"> 
+									 
+									<b-table-column field="id" label="ID" width="40" numeric> 
+										{{ props.row.id }} 
+										 
+									</b-table-column> 
+									
+									<b-table-column field="Nome" label="Nome da Superintendência" sortable> 
+										{{ props.row.nome }}
+									</b-table-column>
+									
+									<b-table-column field="Estado" label="Estado" sortable> 
+										<span v-if="(props.row.uf !== null)">{{ props.row.uf.nome }}</span>
+										<span v-else style="color: #ff0000"><b>Não definido</b></span>										
+									</b-table-column>
+									
+									<b-table-column centered field="enabled" label="Municípios"> 
+										<b-button @click="municipiosActive(props.row)" size="is-small" type="is-success"><i style="color:#fff" class="fa fa-list"></i></b-button>
+									</b-table-column>
+									
+									<b-table-column field="" label="" width="150"> 											
+										<b-button title="Editar Tipo Concessão" @click.native="gotToUrl('/sigequi/superintendencias/editar/'+props.row.id)" size="is-small" type="is-warning"><i style="color:#fff" class="fa fa-edit"></i></b-button>											
+										<b-button @click.native="confirmCustomDelete(props.row.id)" size="is-small" type="is-danger"><i class="fa fa-eraser"></i></b-button>
+									</b-table-column> 
+									
+								</template> 
+								</b-table>
+							</div>
+							
+							<div id="MODAIS">
+								<b-modal can-cancel :active.sync="isMunicipiosActive" animation
+									:width="700" has-modal-card> 
+									<list-municipios></list-municipios>
+								</b-modal>
+							</div>
+							
+						</div>
+					</div>
+				</div>
+			</section>
+
+
+
+		</div>
+
+	<script th:inline="javascript">
+		const URL_BASE =  /*[[${session.BASE_URL_API}]]*/ "";
+	</script>
+
+	<script th:src="@{/js/vue.js}"></script>
+	<script th:src="@{/js/vee-validate.js}"></script>
+	<script th:src="@{/js/axios.min.js}"></script>
+  	<script th:src="@{/js/buefy.min.js}"></script>
+	<script th:src="@{/js/dataservices/CrudService.js}"></script>
+	
+	
+	
+	<script>
+	var URL = URL_BASE+"/superintendencias/";
+	Vue.use(VeeValidate);
+	
+	Vue.component("list-municipios",{
+		props: ['dataMunicipios'],
+		template: `
+			<div class="modal-card">
+	            <header class="modal-card-head">
+	                <p class="modal-card-title">
+	                <i class="icon-interface-windows" style="font-size: 30px;"></i> Municípios da {{$root.selected.nome}}
+	                </p>
+	            </header>
+	            <section class="modal-card-body">
+	            <b-table
+	            	:data="$root.selected.municipios"		                        
+	                :striped="true"
+	                :narrowed="true"
+	                :hoverable="true"
+	                :mobile-cards="true"
+	            >
+	                <template slot-scope="props">
+	                
+	                    <b-table-column field="id" label="ID" width="40" numeric>
+	                        {{ props.row.id }}
+	                    </b-table-column>
+	
+	                    <b-table-column field="nome" label="Município">
+	                        {{ props.row.nome }}
+	                    </b-table-column>
+	                    
+	                    <b-table-column field="codigoIbge" label="C.IBGE">
+	                        {{ props.row.codigoIbge }}
+	                    </b-table-column>
+	                    
+	                    <b-table-column field="estado.nome" label="Estado">
+	                        {{ props.row.estado.nome }} ({{ props.row.estado.sigla }})
+	                    </b-table-column>
+	                    
+	                    <b-table-column field="estado.regiao.nome" label="Região">
+	                        {{ props.row.estado.regiao.nome }}
+	                    </b-table-column>
+	                    <b-table-column centered field="amazoniaLegal" label="Amz.Legal"> 
+							<i title="Pertence à Amazônia Legal" style="color: green;" class="fa fa-check"   v-show="props.row.amazoniaLegal===true"></i>
+							<i title="Não pertence à Amazônia Legal" style="color: red;" class="fa fa-times"   v-show="props.row.amazoniaLegal===false"></i>										
+						</b-table-column>
+	                </template>
+	                <template slot="empty">
+		                <section class="section">
+		                    <div class="content has-text-grey has-text-centered">
+		                        <p>
+		                            <b-icon
+		                                icon="emoticon-sad"
+		                                size="is-large">
+		                            </b-icon>
+		                        </p>
+		                        <p>Não há registros para exibir.</p>
+		                    </div>
+		                </section>
+		            </template>
+	            </b-table>
+				</section> 
+	            <footer class="modal-card-foot">
+	                <button class="button  is-danger" type="button" @click="$parent.close()">Fechar</button>
+	            </footer>
+        	</div>
+		`
+	})
+	
+	const app = new Vue( {
+			el: '#app',
+		    data() {
+		        return {
+		            data:[],
+		            defaultOpenedDetails: [0],
+		            paginationPosition: 'bottom',
+		            showDetailIcon: true,
+		            isPaginated: true,
+		            isStriped: true,
+		            mobileCards: true,
+		            perPage: 5,
+		            currentPage: 1,
+		            total:0,
+		            page: 1,
+		            title:"Superintendências Regionais",
+		            isNarrowed:true,
+		            isMunicipiosActive: false,
+		            selected: null
+		            
+		        }
+		    },
+		    methods: {
+		        toggle(row) {
+		            this.$refs.table.toggleDetails(row)
+		        },
+		        loadAsyncData() {
+	                
+	                crudService.findAll(URL, this.page-1 , this.perPage, null, r => {
+	 					this.data = r.data.content
+	 					this.perPage = r.data.size
+	 					this.total = r.data.totalElements
+					})
+	                
+		        },
+		        onPageChange(page) {
+	                this.page = page
+	                this.loadAsyncData()
+	            },
+	            onPerPageChange(){
+	            	this.page=1
+	            	this.currentPage=1
+	            	this.loadAsyncData()
+	            },
+	            gotToNew() {
+	                window.location.href = "superintendencias/novo";
+	            },
+	            gotToUrl(url) {
+	                window.location.href = url;
+	            },
+	            onDelete(id){
+	            	var excluir = confirm("Deseja Excluir registro? Esta operação não poderá ser desfeita!")
+	            	
+	            	if(excluir){	            		
+	            		crudService.delete(URL, id, r => {
+		 					if(r.data.success){
+		 						alert(r.data.message)
+		 						this.loadAsyncData()
+		 					}
+						})
+	            	}
+	            	
+	            },
+	            confirmCustomDelete(id) {
+	                this.$buefy.dialog.confirm({
+	                    title: 'Excluir Registro',
+	                    message: 'Deseja Excluir registro? Esta operação não poderá ser desfeita!',
+	                    confirmText: 'Excluir',
+	                    cancelText: "Cancelar",
+	                    type: 'is-danger',
+	                    hasIcon: true,
+	                    onConfirm: () => {
+	                    	crudService.delete(URL, id, r => {
+			 					if(r.data.success){
+			 						this.loadAsyncData()
+			 					}
+							})
+	                    	this.$buefy.toast.open({
+			                    duration: 5000,
+			                    message: "Registro Excluído com sucesso!",
+			                    position: 'is-top',
+			                    type: 'is-success'
+			                })
+                    	}
+	                })
+	            },
+	            localDateConverter(date){
+	            	var _date = new Date(date);
+	            	var _dateFormated = _date.toLocaleDateString();
+	            	return _dateFormated;
+	            },
+	            municipiosActive(object){
+		        	this.isMunicipiosActive = true
+		        	this.selected = object
+		        }
+		    },
+		    mounted() {
+		    	this.loadAsyncData()
+           	},
+		})
+
+		            
+  </script>
+</section>
+</body>
+</html>

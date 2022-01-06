@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org" lang="pt-br"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/index}" th:with="currentPage='contatos'">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" th:href="@{/css/buefy.min.css}">
+<link rel="stylesheet" href="https://cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css">
+
+<title>Contatos</title>
+</head>
+<body>
+<section layout:fragment="content">
+
+		<div id="app">
+
+			<section style="padding: 10px 0;">
+
+				<div class="column is-full">
+
+
+					<div class="card">
+						<header class="card-header">
+							<h2 class="card-header-title">{{ title }}</h2>
+							
+						</header>
+						<div class="card-content">
+							<div class="">
+								<b-field grouped group-multiline> <b-select
+									v-model="perPage" :disabled="!isPaginated"
+									@change.native="onPerPageChange">
+								<option value="5">5 por página</option>
+								<option value="10">10 por página</option>
+								<option value="15">15 por página</option>
+								<option value="20">20 por página</option>
+								</b-select>
+								</b-field>
+
+								<b-table 
+									:data="data" 
+									ref="table" 
+									paginated 
+									:mobile-cards="mobileCards"
+									:per-page="perPage"
+									:total="total" 
+									@page-change="onPageChange" 
+									:current-page.sync="currentPage"
+									backend-pagination
+									:pagination-position="paginationPosition"
+									:striped="isStriped"
+									detailed
+									detail-key="id"
+									@details-open="(row, index) => toggle(row, index)"
+									:opened-detailed="defaultOpenedDetails"
+									aria-next-label="Next page" 
+									aria-previous-label="Previous page"
+									aria-page-label="Page" 
+									aria-current-label="Current page">
+									
+								<template slot-scope="props"> 
+								
+									<b-table-column field="id" label="Controle" > 
+										{{ props.row.id }}
+									</b-table-column>
+									<b-table-column field="assunto" label="Assunto" > 
+										{{ props.row.assunto }}
+									</b-table-column>
+									
+									<b-table-column field="created_at" label="Data" > 
+										{{ new Date(props.row.created_at).toLocaleString() }}
+									</b-table-column>
+									  
+									<b-table-column field="nome" label="Nome" > 
+										{{ props.row.nome }}
+									</b-table-column>
+																		
+									<b-table-column centered field="respondido" label="Respondido"> 
+										<i style="color: green;" class="fa fa-check"   v-if="props.row.respondido"></i>
+										<i style="color: red;" class="fa fa-times"   v-if="!props.row.respondido">
+											
+										</i>
+										<b-button @click="marcarRespondido(props.row)" v-if="!props.row.respondido" icon-pack="fas" size="is-small" type="is-success" icon-right="exchange-alt"  outlined/></i>
+									</b-table-column>
+									
+								</template> 
+								<template slot="detail" slot-scope="props">
+									<div class="card">
+										<div class="card-content">
+											<p>
+												<b>E-mail para resposta:</b> {{ props.row.email }}
+											</p>
+											<p>
+												<b>Mensagem :</b> {{ props.row.mensagem }}
+											</p>
+										</div>
+									</div>
+								</template>
+								</b-table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+		</div>
+
+
+	<script th:src="@{/js/vue.js}"></script>
+	<script th:src="@{/js/vee-validate.js}"></script>
+	<script th:src="@{/js/axios.min.js}"></script>
+  	<script th:src="@{/js/buefy.min.js}"></script>
+	<script th:src="@{/js/dataservices/CrudService.js}"></script>
+	
+	<script th:inline="javascript">
+		const URL_BASE =  /*[[${session.BASE_URL_API}]]*/ "";
+	</script>
+	
+	<script>
+	var URL = URL_BASE+"/municipios/";
+	var contatosURL = URL_BASE.replace("v1", "v2")+"/contatos"
+	Vue.use(VeeValidate);
+	const app = new Vue( {
+			el: '#app',
+		    data() {
+		        return {
+		            data:[],
+		            defaultOpenedDetails: [0],
+		            paginationPosition: 'bottom',
+		            showDetailIcon: false,
+		            isPaginated: true,
+		            isStriped: true,
+		            mobileCards: true,
+		            perPage: 5,
+		            currentPage: 1,
+		            total:0,
+		            page: 1,
+		            title:"Contatos",
+		            
+		        }
+		    },
+		    methods: {
+		        toggle(row, index) {
+					this.defaultOpenedDetails = [row.id]
+		        },
+		        loadAsyncData() {	
+		        	this.data = []
+	                crudService.findAll(contatosURL, this.page-1 , this.perPage, "id,desc", r => {
+	                	
+	 					this.data = r.data._embedded.contatos
+					})	                
+		        },
+		        onPageChange(page) {
+		        	this.data = []
+	                this.page = page
+	                this.loadAsyncData()
+	            },
+	            onPerPageChange(){
+	            	this.data = []
+	            	this.page=1
+	            	this.currentPage=1
+	            	this.loadAsyncData()
+	            },
+	            gotToNew() {
+	                window.location.href = "municipios/novo";
+	            },
+	            gotToUrl(url) {
+	                window.location.href = url;
+	            },
+	            onDelete(id){
+	            	var excluir = confirm("Deseja Excluir registro? Esta operação não poderá ser desfeita!")
+	            	
+	            	if(excluir){	            		
+	            		crudService.delete(URL, id, r => {
+		 					if(r.data.success){
+		 						this.data = []
+		 						this.loadAsyncData()
+		 					}
+						})
+	            	}
+	            	
+	            },
+	            confirmCustomDelete(id) {
+	                this.$buefy.dialog.confirm({
+	                    title: 'Excluir Registro',
+	                    message: 'Deseja Excluir registro? Esta operação não poderá ser desfeita!',
+	                    confirmText: 'Excluir',
+	                    cancelText: "Cancelar",
+	                    type: 'is-danger',
+	                    hasIcon: true,
+	                    onConfirm: () => {
+	                    	crudService.delete(URL, id, r => {
+			 					if(r.data.success){
+			 						this.data = []
+			 						this.loadAsyncData()
+			 					}
+							})
+	                    	this.$buefy.toast.open({
+			                    duration: 5000,
+			                    message: "Registro Excluído com sucesso!",
+			                    position: 'is-top',
+			                    type: 'is-success'
+			                })
+                    	}
+	                })
+	            },
+	            marcarRespondido(contato){
+	            	contato.respondido = true
+	            	axios
+	                .put(contato._links.self.href, contato, {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}})
+	                .then(response => {
+	                	this.$buefy.toast.open({
+		                    duration: 2000,
+		                    message: "Registro Alterado com sucesso!",
+		                    position: 'is-top',
+		                    type: 'is-success'
+		                })
+		                this.loadAsyncData()
+	                })
+	                .catch(error => {
+	                	this.$buefy.dialog.confirm({
+	                		title: 'Erro',
+		                    message: error.response.data.message,
+		                    type: 'is-danger',
+		                    hasIcon: true,
+		                    icon: 'times-circle',
+		                    iconPack: 'fas'
+		                })
+	                })
+	            	
+	            },
+	            getContatoID(_str){
+	            	var res = str.split("contatos/")[1];
+	            	return res;
+	            }
+		    },
+		    mounted() {
+		    	this.loadAsyncData()
+           	},
+		})
+
+		            
+  </script>
+</section>
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org" lang="pt-br"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/index}" th:with="currentPage='quilombos'">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" th:href="@{/css/buefy.min.css}">
+<link rel="stylesheet"
+	href="https://cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css">
+<link rel="stylesheet" th:href="@{/css/vue-multiselect.min.css}">
+<!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.6/css/all.css"> -->
+<!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"> -->
+
+
+
+<title th:if="${id} > 0">Editar Quilombo</title>
+<title th:unless="${id} > 0">Novo Quilombo</title>
+</head>
+<body>
+	<section layout:fragment="content">
+
+		<div id="app">
+			<section style="padding: 10px 0;">
+
+				<div class="column is-full">
+
+
+					<div class="card">
+						<header class="card-header">
+							<h2 class="card-header-title">{{ title }}</h2>
+
+						</header>
+						<div class="card-content">
+							<div class="column is-half">
+								<template>
+								<div >
+									<b-field label="Identificação Quilombo"> <b-input
+										v-model="object.identificacaoQuilombola"
+										placeholder="Identificação Quilombo" type="text"></b-input> </b-field>
+
+									<label class="typo__label"><b>Comunidade(s)</b></label>
+									<multiselect v-model="object.comunidades"
+										:options="comunidades" :multiple="true" track-by="id"
+										label="nome" placeholder="Selecione uma ou mais Comunidades!">
+									<span slot="noResult">Comunidade não encontrada!.</span> </multiselect>
+									<br> <label class="typo__label"><b>Território(s)</b></label>
+									<multiselect v-model="object.territorioList"
+										:options="territorios" :multiple="true" track-by="id"
+										label="nome" placeholder="Selecione uma ou mais Territórios!">
+									<span slot="noResult">Território não encontrado!.</span> </multiselect>
+									<br>
+								</div>
+
+
+								<b-button @click.native="save" type="is-info">
+								<i class="fa fa-save"></i> Salvar</b-button> <b-button
+									@click.native="gotToUrl('/sigequi/quilombos')" type="is-danger">
+								<i class="fa fa-arrow-left"></i> Cancelar</b-button> </template>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</section>
+
+
+		</div>
+
+
+		<script th:src="@{/js/vue.js}"></script>
+		<script th:src="@{/js/vee-validate.js}"></script>
+		<script th:src="@{/js/vue-multiselect.min.js}"></script>
+		<script th:src="@{/js/axios.min.js}"></script>
+		<script th:src="@{/js/lodash.min.js}"></script>
+		<script th:src="@{/js/buefy.min.js}"></script>
+		<script th:src="@{/js/dataservices/CrudService.js}"></script>
+
+		<script th:inline="javascript">
+		const id =/*[[${id}]]*/ 0;
+		const URL_BASE =  /*[[${session.BASE_URL_API}]]*/ "";
+	</script>
+
+		<script>
+	
+	const URL = URL_BASE+"/quilombos/";
+	const estadosURL = URL_BASE+"/estados";
+	const comunidadesURL = URL_BASE+"/comunidades";
+	const territoriosURL = URL_BASE+"/territorios";
+	
+	Vue.use(VeeValidate);
+	const app = new Vue( {
+			el: '#app',
+		    data() {
+		        return {
+		            object: {
+		            	id: null,
+		            	identificacaoQuilombola: "",
+		            	comunidades: [ ],
+		            	territorioList: [ ]
+		            	},
+		            estados:[],
+		            title:"",
+		            municipio:null,
+		            confirmacao: false,
+		            isInclusao: true,
+	            	mesesNomes:["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"],
+		            diasNomes:["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"],
+		            comunidades: [ ],
+	            	territorios: [ ]
+		        }
+		    },
+		    methods: {
+		        save() {
+		        	this.getComuni(this.object.comunidades)
+		        	this.getTerrit(this.object.territorioList)
+		        	if(id > 0){
+		        		crudService.update(URL, this.object.id, this.object, r => {
+							if(r.status == 200){
+								this.$buefy.toast.open({
+		 		                    duration: 2000,
+		 		                    message: "Quilombo alterado com sucesso!",
+		 		                    position: 'is-top',
+		 		                    type: 'is-success'
+		 		                })
+		 		               	setTimeout(function() {window.location.href = "/sigequi/quilombos"}, 2000)
+		 					}else{
+		 						this.$buefy.dialog.alert({
+				                    title: 'Erro ao realizar operação!',
+				                    message: "<b>"+r.data.message+"</b>",
+				                    type: 'is-danger',
+				                    hasIcon: true,
+				                    icon: 'times-circle',
+				                    iconPack: 'fa'
+				                })
+            				console.log(r)
+		 					}
+						})
+	            	}else{	            		
+	            		crudService.create(URL, this.object, r => {
+							if(r.status == 200){
+								this.$buefy.toast.open({
+		 		                    duration: 2000,
+		 		                    message: "Quilombo adicionado com sucesso!",
+		 		                    position: 'is-top',
+		 		                    type: 'is-success'
+		 		                })
+		 		               	setTimeout(function() {window.location.href = "/sigequi/quilombos"}, 2000)
+		 					}else{
+		 						this.$buefy.dialog.alert({
+				                    title: 'Erro ao realizar operação!',
+				                    message: "<b>"+r.data.message+"</b>",
+				                    type: 'is-danger',
+				                    hasIcon: true,
+				                    icon: 'times-circle',
+				                    iconPack: 'fa'
+				                })
+            					console.log(r)
+		 						
+		 						
+		 					}
+						})
+	            	}
+		        },
+	            setTitle(){
+	            	if(id > 0){
+	            		this.title = "Editar Quilombo"
+	            	}else{
+	            		this.title = "Novo Quilombo"
+	            	}
+	            },
+	            getObject(){
+	            	if(id > 0){
+		            	crudService.findById(URL, id , r => {
+		 					if(r.data.statusCode == 404){
+		 						
+		 					}else{
+		 						this.object = r.data
+		 					}
+						})	            		
+	            	}
+	            },
+	            gotToUrl(url) {
+	                window.location.href = url;
+	            },
+	            getTerritorios(){
+	            	crudService.findAllNoPagination(territoriosURL, r => {
+	 					this.territorios = _.sortBy(r.data.content, ['nome'])
+					})	
+	            },
+	            getComunidades(){
+	            	crudService.findAllNoPagination(comunidadesURL, r => {
+	 					this.comunidades = _.sortBy(r.data.content, ['nome'])
+					})	
+	            },
+	            getTerrit(ids){
+	            	auxiliar = []	            	
+	            	ids.forEach((item, index)=>{
+	            		auxiliar.push({id:item.id})
+	            	})
+	            	this.object.territorioList=[]
+	            	this.object.territorioList=auxiliar
+	            },
+	            getComuni(ids){
+	            	auxiliar = []	            	
+	            	ids.forEach((item, index)=>{
+	            		auxiliar.push({id:item.id})
+	            	})
+	            	this.object.comunidades=[]
+	            	this.object.comunidades=auxiliar
+	            }
+		    },
+		    mounted() {
+		    	this.setTitle()		    	
+		    	this.getObject()
+		    	this.getComunidades()
+		    	this.getTerritorios()
+		    	if(id>0){
+		    		isInclusao = false
+		    	}
+           	},
+			components: {
+    			Multiselect: window.VueMultiselect.default
+  			}
+		})
+		            
+  </script>
+	</section>
+</body>
+</html>

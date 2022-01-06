@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org" lang="pt-br"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/index}" th:with="currentPage='dashboard'">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" th:href="@{/css/buefy.min.css}">
+<link rel="stylesheet" href="https://cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css">
+<style type="text/css">
+	.dash-icon{
+		font-size: 48px;
+	}
+	.pointer {cursor: pointer;}
+	
+	#svg-map path { fill:#0094d9 }
+        #svg-map text { fill:#fff; font:12px Arial-BoldMT, sans-serif; cursor:pointer }
+        #svg-map a{ text-decoration:none }
+        #svg-map a:hover { cursor:pointer; text-decoration:none }
+        #svg-map a:hover path{ fill:#003399 !important }
+        #svg-map a:active path{ fill:#003399 !important }
+        #svg-map .circle { fill:#66ccff }
+        #svg-map a:hover .circle { fill:#003399 !important; cursor:pointer }
+</style>
+<title>Dashboard</title>
+</head>
+<body>
+<section layout:fragment="content">
+
+		<div id="app">
+			
+			<section style="padding-top: 10px;"   class="dashboard-counts no-padding-bottom">
+					            <div style="padding: 5px 10px;" class="container-fluid">
+					              <div class="row bg-white has-shadow">
+					                <!-- Item -->
+					                <div class="col-xl-2 col-sm-2 bg-primary text-white p-2 pointer" @click="gotToNew('contatos')">
+					                	<div class="text-center"><i class="fas fa-map-signs dash-icon"></i></div>
+					                	<div class="text-center">Contatos</div>
+					                </div>
+					                <div class="col-xl-2 col-sm-2 bg-info text-white p-2 pointer" @click="gotToNew('comunidades')">
+					                	<div class="text-center"><i class="fas fa-map-signs dash-icon" dash-icon></i></div>
+					                	<div class="text-center">Comunidades</div>
+					                </div>
+					                <div class="col-xl-2 col-sm-2 bg-danger text-white p-2 pointer" @click="gotToNew('territorios')">
+					                	<div class="text-center"><i class="fas fa-map-signs dash-icon" dash-icon></i></div>
+					                	<div class="text-center">Territórios</div>
+					                </div>
+					                <div class="col-xl-2 col-sm-2 bg-warning text-white p-2 pointer" @click="gotToNew('superintendencias')">
+					                	<div class="text-center"><i class="fas fa-map-signs dash-icon"></i></div>
+					                	<div class="text-center">Superintendências</div>					                	
+					                </div>
+					                <div class="col-xl-2 col-sm-2 bg-dark text-white p-2 pointer" @click="gotToNew('orgaos')">
+					                	<div class="text-center"><i class="fas fa-map-signs dash-icon"></i></div>
+					                	<div class="text-center">Orgãos</div>
+					                </div>
+					                <div class="col-xl-2 col-sm-2 bg-secondary text-white p-2 pointer" @click="gotToNew('usuarios')">
+					                	<div class="text-center"><i class="fas fa-map-signs dash-icon"></i></div>
+					                	<div class="text-center">Usuários</div>
+					                </div>
+					                <div class="col-xl-2 col-sm-2 bg-secondary text-white p-2 pointer" @click="gotToNew('/sigequi')">
+					                	<div class="text-center"><i class="fas fa-map-signs dash-icon"></i></div>
+					                	<div class="text-center">HotSite</div>
+					                </div>
+					              </div>
+					            </div>
+					          </section>
+			
+			<section style="padding: 10px 0;">
+
+<!-- 				<div class="column is-full"> -->
+
+
+<!-- 					<div class="card"> -->
+<!-- 						<header class="card-header"> -->
+<!-- 							<h2 class="card-header-title">Dados Resumidos por Estado</h2>							 -->
+<!-- 						</header> -->
+<!-- 						<div class="card-content"> -->
+<!-- 							<dash-map ></dash-map> -->
+<!-- 						</div> -->
+<!-- 					</div> -->
+<!-- 				</div> -->
+			</section>
+
+
+
+		</div>
+
+
+	<script th:src="@{/js/vue.js}"></script>
+	<script th:src="@{/js/vee-validate.js}"></script>
+	<script th:src="@{/js/axios.min.js}"></script>
+  	<script th:src="@{/js/buefy.min.js}"></script>
+	<script th:src="@{/js/dataservices/CrudService.js}"></script>
+	<script th:src="@{/hotsite_assets/component_pages/mapa.js}"></script>
+	
+	<script th:inline="javascript">
+		const URL_BASE =  /*[[${session.BASE_URL_API}]]*/ "";
+	</script>
+	
+	<script>
+	var URL = URL_BASE + "/dashboard/";
+	Vue.use(VeeValidate);
+	Vue.component("dash-map", mapa)
+	const app = new Vue( {
+			el: '#app',
+		    data() {
+		        return {
+		            data:[],
+		            defaultOpenedDetails: [0],
+		            paginationPosition: 'bottom',
+		            showDetailIcon: true,
+		            isPaginated: true,
+		            isStriped: true,
+		            mobileCards: true,
+		            perPage: 5,
+		            currentPage: 1,
+		            total:0,
+		            page: 1,
+		            title:"Dashboard",
+		            isNarrowed:true,
+		            dashboard: {
+		            	numeroComunidades: 3,
+		            	numeroTerritorios: 2,
+		            	numeroQuilombos: 0
+		            	}
+		            
+		        }
+		    },
+		    methods: {		        
+	            gotToNew(url) {
+	                window.location.href = url;
+	            }
+		    },
+		    mounted() {
+		    	this.loadAsyncData()
+           	},
+		})
+
+		            
+  </script>
+</section>
+</body>
+</html>
