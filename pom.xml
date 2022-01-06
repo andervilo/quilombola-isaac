@@ -172,7 +172,31 @@
 					<target>1.8</target>
 				</configuration>
 			</plugin>
-			
+
+
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+
+<!--			<plugin>-->
+
+<!--				&lt;!&ndash; Building an executable jar &ndash;&gt;-->
+
+<!--				<groupId>org.apache.maven.plugins</groupId>-->
+<!--				<artifactId>maven-jar-plugin</artifactId>-->
+<!--				<version>3.1.0</version>-->
+<!--				<configuration>-->
+<!--					<archive>-->
+<!--						<manifest>-->
+
+<!--							&lt;!&ndash; give full qualified name of your main class&ndash;&gt;-->
+<!--							<mainClass>br.org.quilombola.ProjetoQuilombolaApplication</mainClass>-->
+
+<!--						</manifest>-->
+<!--					</archive>-->
+<!--				</configuration>-->
+<!--			</plugin>-->
 			
 			
 		</plugins>
