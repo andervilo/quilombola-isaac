@@ -38,12 +38,14 @@ const ModalTituloPropriedadeAdd = {
 		    	    		  response => {
 				    	    	  console.log(response)
 				    	    	  if(response.status == 200){
-				    	    		  this.$buefy.toast.open({
+				    	    		  	this.$buefy.toast.open({
 				    	                    duration: 2000,
 				    	                    message: "Operação realizada com sucesso!",
 				    	                    position: 'is-top',
 				    	                    type: 'is-success'
 				    	                })
+				    	                this.$emit('buscar')
+	        							this.$parent.close()
 				    	    	  }
 				    	      })
 			    	     .catch(error => {
@@ -57,8 +59,6 @@ const ModalTituloPropriedadeAdd = {
 				                })
 			    	      }
 		    	      )
-	        		this.$emit('buscar')
-	        		this.$parent.close()
 	        	},
 	        	
 	        	getOrgaos(){

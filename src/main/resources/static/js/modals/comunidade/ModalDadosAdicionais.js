@@ -35,7 +35,8 @@ const ModalDadosAdicionais = {
 	        		    decreto: false,
 	        		    assentamentos: false,
 	        		    outrosProcessosAdministrativos: [],
-	        		    processosJudiciais: []
+	        		    processosJudiciais: [],
+	        		    territorio: null
 	        		    
 	        		    
 		            },
@@ -59,6 +60,7 @@ const ModalDadosAdicionais = {
 	        			    this.object.dataDiarioOficialUniaoDiarioOficialEstadoPortariaPeqTeq = 
 	        			        this.object.dataDiarioOficialUniaoDiarioOficialEstadoPortariaPeqTeq == null? "" : new Date(this.object.dataDiarioOficialUniaoDiarioOficialEstadoPortariaPeqTeq)
 	        				this.isObjetoSetado = true
+	        				this.object.territorio = r.data.id
 	        			}
 	        		})
 	        	},

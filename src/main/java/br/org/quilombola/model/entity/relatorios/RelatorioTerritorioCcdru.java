@@ -18,8 +18,8 @@ public class RelatorioTerritorioCcdru extends BaseEntity {
 	@Column(name = "territorio")
 	private String territorio;
 	
-	@Column(name = "municipio")
-	private String municipio;
+	@Column(name = "municipios")
+	private String municipios;
 	
 	@Column(name = "estado")
 	private String estado;
@@ -78,7 +78,7 @@ public class RelatorioTerritorioCcdru extends BaseEntity {
 	public RelatorioTerritorioCcdru() {
 	}
 
-	public RelatorioTerritorioCcdru(Integer idTerritorio, String territorio, String municipio, String estado,
+	public RelatorioTerritorioCcdru(Integer idTerritorio, String territorio, String municipios, String estado,
 			String numeroProcesso, String numeroPortaria, String dataPortaria, String secaoDou, String folhaDou,
 			String linkDou, String linkDou2, Integer numeroFamilias, String nomeImovel, Double areahaTitulo,
 			String cartorio, String numeroOficio, String livro, String folha, String matricula, String nomeProprietario,
@@ -86,7 +86,7 @@ public class RelatorioTerritorioCcdru extends BaseEntity {
 		super();
 		this.idTerritorio = idTerritorio;
 		this.territorio = territorio;
-		this.municipio = municipio;
+		this.municipios = municipios;
 		this.estado = estado;
 		this.numeroProcesso = numeroProcesso;
 		this.numeroPortaria = numeroPortaria;
@@ -128,13 +128,13 @@ public class RelatorioTerritorioCcdru extends BaseEntity {
 	}
 
 	@Column(name = "municipio")
-	public String getMunicipio() {
-		return municipio;
+	public String getMunicipios() {
+		return municipios;
 	}
 
 	@Column(name = "municipio")
-	public void setMunicipio(String municipio) {
-		this.municipio = municipio;
+	public void setMunicipios(String municipios) {
+		this.municipios = municipios;
 	}
 
 	@Column(name = "estado")

@@ -60,7 +60,6 @@ public class Comunidade extends BaseEntity {
 			@JoinColumn(name = "fk_comunidade", referencedColumnName = "id") }, inverseJoinColumns = {
 					@JoinColumn(name = "fk_quilombo", referencedColumnName = "id") })
 	@ManyToMany(fetch = FetchType.LAZY)
-	//@JsonIgnore
 	private List<Quilombo> quilombolaList;
 
 	@JsonIgnoreProperties(

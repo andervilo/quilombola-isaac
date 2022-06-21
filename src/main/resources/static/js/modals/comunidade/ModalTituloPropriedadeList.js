@@ -209,7 +209,7 @@ const ModalTituloPropriedadeList = {
 						:width="700" has-modal-card> 
 						<modal-titulo-propriedade-add  
 							:id="id"
-							@buscar="buscar">>
+							@buscar="buscar">
 						</modal-titulo-propriedade-add>
 					</b-modal>
 					

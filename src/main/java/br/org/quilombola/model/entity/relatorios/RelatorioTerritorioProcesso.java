@@ -16,7 +16,7 @@ import br.org.quilombola.arquitetura.BaseEntity;
 "id",
 "id_territorio",
 "territorio",
-"municipio",
+"municipios",
 "numero_processo_reconhecimento",
 "link_processo_sei",
 "localizacao_acervo_fundiario"
@@ -30,8 +30,8 @@ public class RelatorioTerritorioProcesso extends BaseEntity {
 	private Integer idTerritorio;
 	@Column(name = "territorio")
 	private String territorio;
-	@Column(name = "municipio")
-	private String municipio;
+	@Column(name = "municipios")
+	private String municipios;
 	@Column(name = "numero_processo_reconhecimento")
 	private String numeroProcessoReconhecimento;
 	@Column(name = "link_processo_sei")
@@ -51,16 +51,16 @@ public class RelatorioTerritorioProcesso extends BaseEntity {
 	* @param linkProcessoSei
 	* @param territorio
 	* @param localizacaoAcervoFundiario
-	* @param municipio
+	* @param municipios
 	* @param id
 	* @param idTerritorio
 	* @param numeroProcessoReconhecimento
 	*/
-	public RelatorioTerritorioProcesso(Integer idTerritorio, String territorio, String municipio, String numeroProcessoReconhecimento, String linkProcessoSei, String localizacaoAcervoFundiario) {
+	public RelatorioTerritorioProcesso(Integer idTerritorio, String territorio, String municipios, String numeroProcessoReconhecimento, String linkProcessoSei, String localizacaoAcervoFundiario) {
 	super();
 	this.idTerritorio = idTerritorio;
 	this.territorio = territorio;
-	this.municipio = municipio;
+	this.municipios = municipios;
 	this.numeroProcessoReconhecimento = numeroProcessoReconhecimento;
 	this.linkProcessoSei = linkProcessoSei;
 	this.localizacaoAcervoFundiario = localizacaoAcervoFundiario;
@@ -86,14 +86,14 @@ public class RelatorioTerritorioProcesso extends BaseEntity {
 	this.territorio = territorio;
 	}
 
-	@Column(name = "municipio")
-	public String getMunicipio() {
-	return municipio;
+	@Column(name = "municipios")
+	public String getMunicipios() {
+	return municipios;
 	}
 
-	@Column(name = "municipio")
-	public void setMunicipio(String municipio) {
-	this.municipio = municipio;
+	@Column(name = "municipios")
+	public void setMunicipios(String municipios) {
+	this.municipios = municipios;
 	}
 
 	@Column(name = "numero_processo_reconhecimento")

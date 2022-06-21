@@ -30,7 +30,17 @@ public class Quilombo extends BaseEntity{
 	@Column(name = "identificacao_quilombola")
 	private String identificacaoQuilombola;
 
-	@JsonIgnore
+	@JsonIgnoreProperties(
+			value = {
+					"quilombolaList",
+					"quilombos",
+					"dadosAdicionais",
+					"municipios",
+					"certificados"
+			},
+			allowGetters = false,
+			allowSetters = false
+	)
 	@JoinTable(name = "quilombola_comunidade", 
 			joinColumns = {
 					@JoinColumn(name = "fk_quilombo", referencedColumnName = "id") 
@@ -39,9 +49,25 @@ public class Quilombo extends BaseEntity{
 					@JoinColumn(name = "fk_comunidade", referencedColumnName = "id") 
 			})
 	@ManyToMany(fetch = FetchType.LAZY)
-	private List<Comunidade> comunidades = new ArrayList<Comunidade>();
+	private List<Comunidade> comunidades = new ArrayList<>();
 
-	@JsonIgnore
+	@JsonIgnoreProperties(
+			value = {
+					"quilombos",
+					"municipioList",
+					"ccdrus",
+					"editaisComunicacao",
+					"decretosDesapropriatorios",
+					"matriculas",
+					"portariasReconhecimento",
+					"processosAdministrativos",
+					"tituloPropriedade",
+					"assentamentos",
+					"dadosAdicionais"
+			},
+			allowGetters = false,
+			allowSetters = false
+	)
 	@JoinTable(name = "quilombo_territorio", 
 			joinColumns = {
 					@JoinColumn(name = "fk_quilombo", referencedColumnName = "id")
@@ -60,13 +86,6 @@ public class Quilombo extends BaseEntity{
 		this.identificacaoQuilombola = identificacaoQuilombola;
 	}
 	
-	//@Transactional
-	//@JsonSerialize(converter = ComunidadeConverterForQuilombo.class)
-	@JsonIgnoreProperties(
-			value = {
-					"quilombolaList"
-			}
-	)
 	public List<Comunidade> getComunidades() {
 		return comunidades;
 	}
@@ -75,12 +94,6 @@ public class Quilombo extends BaseEntity{
 		this.comunidades = comunidades;
 	}
 
-	//@JsonSerialize(converter = TerritorioConverterForQuilombo.class)
-	@JsonIgnoreProperties(
-			value = {
-					"quilombos"
-			}
-	)
 	public List<Territorio> getTerritorioList() {
 		return territorioList;
 	}

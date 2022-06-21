@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import br.org.quilombola.arquitetura.BaseEntity;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({ "id", "id_territorio", "territorio", "municipio", "estado", "numero_decreto_desapropriacao",
+@JsonPropertyOrder({ "id", "id_territorio", "territorio", "municipios", "estado", "numero_decreto_desapropriacao",
 		"data_decreto_deaproriacaoa", "decreto_desapropriacao_dou", "secao_do", "folha_do", "link_publicacao_1",
 		"link_publicacao_2", "link_publicacao_3", "link_publicacao_4", "link_publicacao_5" })
 
@@ -26,8 +26,8 @@ public class RelatorioTerritorioDecreto extends BaseEntity {
 	@Column(name = "territorio")
 	private String territorio;
 
-	@Column(name = "municipio")
-	private String municipio;
+	@Column(name = "municipios")
+	private String municipios;
 
 	@Column(name = "estado")
 	private String estado;
@@ -65,14 +65,14 @@ public class RelatorioTerritorioDecreto extends BaseEntity {
 	public RelatorioTerritorioDecreto() {
 	}
 
-	public RelatorioTerritorioDecreto(Integer idTerritorio, String territorio, String municipio, String estado,
+	public RelatorioTerritorioDecreto(Integer idTerritorio, String territorio, String municipios, String estado,
 			String numeroDecretoDesapropriacao, String dataDecretoDeaproriacaoa, String decretoDesapropriacaoDou,
 			String secaoDo, String folhaDo, String linkPublicacao1, String linkPublicacao2, String linkPublicacao3,
 			String linkPublicacao4, String linkPublicacao5) {
 		super();
 		this.idTerritorio = idTerritorio;
 		this.territorio = territorio;
-		this.municipio = municipio;
+		this.municipios = municipios;
 		this.estado = estado;
 		this.numeroDecretoDesapropriacao = numeroDecretoDesapropriacao;
 		this.dataDecretoDeaproriacaoa = dataDecretoDeaproriacaoa;
@@ -106,14 +106,14 @@ public class RelatorioTerritorioDecreto extends BaseEntity {
 		this.territorio = territorio;
 	}
 
-	@Column(name = "municipio")
-	public String getMunicipio() {
-		return municipio;
+	@Column(name = "municipios")
+	public String getMunicipios() {
+		return municipios;
 	}
 
-	@Column(name = "municipio")
-	public void setMunicipio(String municipio) {
-		this.municipio = municipio;
+	@Column(name = "municipios")
+	public void setMunicipios(String municipios) {
+		this.municipios = municipios;
 	}
 
 	@Column(name = "estado")

@@ -12,7 +12,7 @@ import br.org.quilombola.arquitetura.BaseEntity;
 @Entity
 @Table(name = "relatorio_edital")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({ "id_territorio", "territorio", "municipio", "estado", "dou_doe_primeiro_edital", "secao_do",
+@JsonPropertyOrder({ "id_territorio", "territorio", "municipios", "estado", "dou_doe_primeiro_edital", "secao_do",
 		"folha_do", "link_publicacao_1", "link_publicacao_2", "numero_familias", "areaha_titulo", "areaha_2" })
 public class RelatorioTerritorioEdital extends BaseEntity {
 
@@ -22,8 +22,8 @@ public class RelatorioTerritorioEdital extends BaseEntity {
 	private Integer idTerritorio;
 	@Column(name = "territorio")
 	private String territorio;
-	@Column(name = "municipio")
-	private String municipio;
+	@Column(name = "municipios")
+	private String municipios;
 	@Column(name = "estado")
 	private String estado;
 	@Column(name = "dou_doe_primeiro_edital")
@@ -57,7 +57,7 @@ public class RelatorioTerritorioEdital extends BaseEntity {
 	 * @param douDoePrimeiroEdital
 	 * @param numeroFamilias
 	 * @param areahaTitulo
-	 * @param municipio
+	 * @param municipios
 	 * @param idTerritorio
 	 * @param secaoDo
 	 * @param linkPublicacao1
@@ -65,13 +65,13 @@ public class RelatorioTerritorioEdital extends BaseEntity {
 	 * @param areaha2
 	 * @param folhaDo
 	 */
-	public RelatorioTerritorioEdital(Integer idTerritorio, String territorio, String municipio, String estado,
+	public RelatorioTerritorioEdital(Integer idTerritorio, String territorio, String municipios, String estado,
 			String douDoePrimeiroEdital, String secaoDo, String folhaDo, String linkPublicacao1, String linkPublicacao2,
 			Integer numeroFamilias, Integer areahaTitulo, Integer areaha2) {
 		super();
 		this.idTerritorio = idTerritorio;
 		this.territorio = territorio;
-		this.municipio = municipio;
+		this.municipios = municipios;
 		this.estado = estado;
 		this.douDoePrimeiroEdital = douDoePrimeiroEdital;
 		this.secaoDo = secaoDo;
@@ -103,14 +103,14 @@ public class RelatorioTerritorioEdital extends BaseEntity {
 		this.territorio = territorio;
 	}
 
-	@Column(name = "municipio")
-	public String getMunicipio() {
-		return municipio;
+	@Column(name = "municipios")
+	public String getMunicipios() {
+		return municipios;
 	}
 
-	@Column(name = "municipio")
-	public void setMunicipio(String municipio) {
-		this.municipio = municipio;
+	@Column(name = "municipios")
+	public void setMunicipios(String municipios) {
+		this.municipios = municipios;
 	}
 
 	@Column(name = "estado")

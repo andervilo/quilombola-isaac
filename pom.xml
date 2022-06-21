@@ -12,8 +12,8 @@
 
 	<groupId>br.org.quilombola</groupId>
 	<artifactId>quilombola</artifactId>
-	<version>0.1.100</version>
-	<packaging>jar</packaging>
+	<version>1.101</version>
+	<packaging>war</packaging>
 	<name>ProjetoQuilombola</name>
 	<description>Gerenciador de Quilombos</description>
 
@@ -162,7 +162,6 @@
 	</dependencies>
 
 	<build>
-		<finalName>sigequi</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -179,24 +178,6 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 
-<!--			<plugin>-->
-
-<!--				&lt;!&ndash; Building an executable jar &ndash;&gt;-->
-
-<!--				<groupId>org.apache.maven.plugins</groupId>-->
-<!--				<artifactId>maven-jar-plugin</artifactId>-->
-<!--				<version>3.1.0</version>-->
-<!--				<configuration>-->
-<!--					<archive>-->
-<!--						<manifest>-->
-
-<!--							&lt;!&ndash; give full qualified name of your main class&ndash;&gt;-->
-<!--							<mainClass>br.org.quilombola.ProjetoQuilombolaApplication</mainClass>-->
-
-<!--						</manifest>-->
-<!--					</archive>-->
-<!--				</configuration>-->
-<!--			</plugin>-->
 			
 			
 		</plugins>

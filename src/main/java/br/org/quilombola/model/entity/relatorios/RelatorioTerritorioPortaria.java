@@ -12,7 +12,7 @@ import br.org.quilombola.arquitetura.BaseEntity;
 @Entity
 @Table(name = "relatorio_portaria")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({ "id_territorio", "territorio", "municipio", "estado", "numero_portaria_reconhecimento",
+@JsonPropertyOrder({ "id_territorio", "territorio", "municipios", "estado", "numero_portaria_reconhecimento",
 		"data_portaria_reconhecimento", "portaria_reconhecimento_dou", "secao_do", "folha_do", "link_publicacao_1",
 		"link_publicacao_2", "link_publicacao_3", "link_publicacao_5", "link_publicacao_6" })
 public class RelatorioTerritorioPortaria extends BaseEntity {
@@ -25,8 +25,8 @@ public class RelatorioTerritorioPortaria extends BaseEntity {
 	@Column( name ="territorio")
 	private String territorio;
 	
-	@Column( name ="municipio")
-	private String municipio;
+	@Column( name ="municipios")
+	private String municipios;
 	
 	@Column( name ="estado")
 	private String estado;
@@ -64,11 +64,11 @@ public class RelatorioTerritorioPortaria extends BaseEntity {
 	public RelatorioTerritorioPortaria() {
 	}
 
-	public RelatorioTerritorioPortaria(Integer idTerritorio, String territorio, String municipio, String estado, String numeroPortariaReconhecimento, String dataPortariaReconhecimento, String portariaReconhecimentoDou, String secaoDo, String folhaDo, String linkPublicacao1, String linkPublicacao2, String linkPublicacao3, String linkPublicacao5, String linkPublicacao6) {
+	public RelatorioTerritorioPortaria(Integer idTerritorio, String territorio, String municipios, String estado, String numeroPortariaReconhecimento, String dataPortariaReconhecimento, String portariaReconhecimentoDou, String secaoDo, String folhaDo, String linkPublicacao1, String linkPublicacao2, String linkPublicacao3, String linkPublicacao5, String linkPublicacao6) {
 	super();
 	this.idTerritorio = idTerritorio;
 	this.territorio = territorio;
-	this.municipio = municipio;
+	this.municipios = municipios;
 	this.estado = estado;
 	this.numeroPortariaReconhecimento = numeroPortariaReconhecimento;
 	this.dataPortariaReconhecimento = dataPortariaReconhecimento;
@@ -102,14 +102,14 @@ public class RelatorioTerritorioPortaria extends BaseEntity {
 		this.territorio = territorio;
 	}
 
-	@Column( name ="municipio")
-	public String getMunicipio() {
-		return municipio;
+	@Column( name ="municipios")
+	public String getMunicipios() {
+		return municipios;
 	}
 
-	@Column( name ="municipio")
-	public void setMunicipio(String municipio) {
-		this.municipio = municipio;
+	@Column( name ="municipios")
+	public void setMunicipios(String municipios) {
+		this.municipios = municipios;
 	}
 
 	@Column( name ="estado")
