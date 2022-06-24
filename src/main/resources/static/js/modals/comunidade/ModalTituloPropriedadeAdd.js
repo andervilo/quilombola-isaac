@@ -36,8 +36,7 @@ const ModalTituloPropriedadeAdd = {
 	        		  .post(`/sigequi/api/v2/titulospropriedades`, this.object)
 		    	      .then(
 		    	    		  response => {
-				    	    	  console.log(response)
-				    	    	  if(response.status == 200){
+				    	    	  if(response.status == 200 || response.status == 201){
 				    	    		  	this.$buefy.toast.open({
 				    	                    duration: 2000,
 				    	                    message: "Operação realizada com sucesso!",
