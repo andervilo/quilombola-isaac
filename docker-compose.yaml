@@ -1,27 +1,27 @@
 ---
 version: '3.6'
 services:
-  sigequi:
-    container_name: quilombola
-    image: quilombola:0.1.100
-    ports: 
-      - 8080:8080
-  #  dockerfile: .
+#  sigequi:
+#    container_name: quilombola
+#    image: quilombola:0.1.100
+#    ports: 
+#      - 8080:8080
+#    dockerfile: .
 #    build: .
 #      context: .
-    depends_on: 
-      - postgres
+#    depends_on: 
+#      - postgres
 
 
   postgres:
     container_name: postgres
     image: postgres:10.11
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-pX89LxzsR}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-Psj1V1mep}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       PGDATA: /data/postgres
-    volumes:
-        - postgres:/data/postgres
+#    volumes:
+#        - postgres:/data/postgres
     ports:
       - "5432:5432"
     command: 
@@ -29,6 +29,6 @@ services:
       - "-c"
       - "wal_level=logical"
     restart: unless-stopped
-
-volumes:
-  postgres:
+#
+#volumes:
+#  postgres:

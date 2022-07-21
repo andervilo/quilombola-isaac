@@ -1170,6 +1170,10 @@ const pesquisar = {
                                                             <td>{{territorioSelected.dadosAdicionais.latitudeIbge}}</td>
                                                         </tr>
                                                         <tr>
+                                                            <th>Publicação Terra Quilombo:</th>
+                                                            <td>{{territorioSelected.dadosAdicionais.publicacaoTerraQuilombo}}</td>
+                                                        </tr>
+                                                        <tr>
                                                             <th>Latitude INCRA:</th>
                                                             <td>{{territorioSelected.dadosAdicionais.latitudeIncra}}</td>
                                                         </tr>

@@ -47,7 +47,8 @@ const sobre = {
                             </p>
                             
                             <p class="text-muted">
-            	               <b>O Trabalho foi coordenado pelo Professor Girolamo Domenico Treccani.</b>
+                            O Trabalho foi coordenado pelo Professor<b> Girolamo Domenico Treccani 
+                               e por Aianny Naiara Gomes Monteiro.</b>
                             </p>
                             
                             <p class="text-muted">

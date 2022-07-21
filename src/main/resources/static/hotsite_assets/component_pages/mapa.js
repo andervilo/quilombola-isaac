@@ -159,6 +159,17 @@ const mapa = {
                             <h2 class="text-center text-success">Sistema de Informações Públicas e Geográficas sobre Quilombos – SIPGQ</h2>
                         </div>
                     </div>
+					<div class="row" style="margin-bottom: 20px;">    
+						<div class="col-4 col-md-4 col-lg-4 col-sm-4 col-xs-4">
+							<img class="mx-auto d-block img-fluid" style="width:100%; max-width:150px;" src="/sigequi/hotsite_assets/img/conaq.jpeg"/>
+						</div>
+						<div class="col-4 col-md-4  col-lg-4 col-sm-4 col-xs-4">	
+							<img class="mx-auto d-block img-fluid" style="width:100%; max-width:150px;" src="/sigequi/hotsite_assets/img/ufpa2.jpeg"/>	
+						</div>
+						<div class="col-4 col-md-4  col-lg-4 col-sm-4 col-xs-4">
+							<img class="mx-auto my-auto d-block img-fluid" style="width:100%; max-width:150px;" src="/sigequi/hotsite_assets/img/cidha.jpeg"/>
+						</div>
+					</div>
                     <div class="row">
                         <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12">
     
@@ -1124,6 +1135,7 @@ const mapa = {
                             </div>
                         </div>
                     </div>
+					
                 </div>
                 
             `,
