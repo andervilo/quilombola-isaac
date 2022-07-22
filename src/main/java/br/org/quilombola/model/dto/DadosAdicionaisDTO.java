@@ -44,7 +44,7 @@ public class DadosAdicionaisDTO extends BaseEntity {
 
 	private Boolean copiaTituloArquivoAutor = false;
 
-	private Boolean publicacaoTerraQuilombo;
+	private String publicacaoTerraQuilombo;
 
 	private Boolean quilomboUrbano = false;
 
@@ -210,11 +210,11 @@ public class DadosAdicionaisDTO extends BaseEntity {
 		this.copiaTituloArquivoAutor = copiaTituloArquivoAutor;
 	}
 
-	public Boolean getPublicacaoTerraQuilombo() {
+	public String getPublicacaoTerraQuilombo() {
 		return publicacaoTerraQuilombo;
 	}
 
-	public void setPublicacaoTerraQuilombo(Boolean publicacaoTerraQuilombo) {
+	public void setPublicacaoTerraQuilombo(String publicacaoTerraQuilombo) {
 		this.publicacaoTerraQuilombo = publicacaoTerraQuilombo;
 	}
 

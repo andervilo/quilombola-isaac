@@ -14,7 +14,7 @@ const ModalDadosAdicionais = {
 	        		    areahaTerritorial: 0,
 	        		    observacao: null,
 	        		    copiaTituloArquivoAutor: false,
-	        		    publicacaoTerraQuilombo: false,
+	        		    publicacaoTerraQuilombo: null,
 	        		    quilomboUrbano: false,
 	        		    peqTeq: false,
 	        		    qtdFamiliasPeqTeq: null,
@@ -255,12 +255,6 @@ const ModalDadosAdicionais = {
                             </b-field>
                             
                             <b-field   >                                
-                                <b-checkbox v-model="object.publicacaoTerraQuilombo">
-                                    Publicação Terra Quilombo
-                                </b-checkbox>
-                            </b-field>
-                            
-                            <b-field   >                                
                                 <b-checkbox v-model="object.peqTeq">
                                     PeqTeq
                                 </b-checkbox>
@@ -300,8 +294,12 @@ const ModalDadosAdicionais = {
                                 </b-datepicker>
                             </b-field>
                             
-                            <b-field  label="Observacao"  >
-                                <b-input v-model="object.observacao" placeholder="Observacao" type="textarea" ></b-input>
+                            <b-field  label="Observação"  >
+                                <b-input v-model="object.observacao" placeholder="Observação" type="textarea" ></b-input>
+                            </b-field>
+
+                            <b-field  label="Publicação Terra Quilombo"  >
+                                <b-input v-model="object.publicacaoTerraQuilombo" placeholder="Publicação Terra Quilombo" type="textarea" ></b-input>
                             </b-field>
                             
                             <b-field  label="Outros Processos Administrativos"  >

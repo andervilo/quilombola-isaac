@@ -106,7 +106,7 @@ public class DadosAdicionaisComunidade extends BaseEntity {
 	private Boolean copiaTituloArquivoAutor = false;
 
 	@Column(name = "publicacao_terra_quilombo")
-	private Boolean publicacaoTerraQuilombo;
+	private String publicacaoTerraQuilombo;
 
 	@Column(name = "quilombo_urbano")
 	private Boolean quilomboUrbano = false;
@@ -274,11 +274,11 @@ public class DadosAdicionaisComunidade extends BaseEntity {
 		this.copiaTituloArquivoAutor = copiaTituloArquivoAutor;
 	}
 
-	public Boolean getPublicacaoTerraQuilombo() {
+	public String getPublicacaoTerraQuilombo() {
 		return publicacaoTerraQuilombo;
 	}
 
-	public void setPublicacaoTerraQuilombo(Boolean publicacaoTerraQuilombo) {
+	public void setPublicacaoTerraQuilombo(String publicacaoTerraQuilombo) {
 		this.publicacaoTerraQuilombo = publicacaoTerraQuilombo;
 	}
 
